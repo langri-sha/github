@@ -1,11 +1,6 @@
 {
   "dependencies": [
     {
-      "name": "@langri-sha/eslint-config",
-      "version": "*",
-      "type": "build"
-    },
-    {
       "name": "@langri-sha/lint-staged",
       "version": "*",
       "type": "build"
