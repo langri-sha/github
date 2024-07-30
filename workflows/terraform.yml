@@ -1,0 +1,36 @@
+name: Terraform
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/terraform.yml'
+      - '*.tf'
+      - '*.lock.hcl'
+  pull_request:
+    paths:
+      - '.github/workflows/terraform.yml'
+      - '*.tf'
+      - '*.lock.hcl'
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        working-directory:
+          - terraform/web
+          - terraform/org
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.working-directory }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run checks
+        uses: ./.github/actions/terraform
