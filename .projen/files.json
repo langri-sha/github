@@ -9,7 +9,6 @@
     ".projen/files.json",
     ".projen/tasks.json",
     "CODEOWNERS",
-    "eslint.config.js",
     "license",
     "lint-staged.config.js",
     "prettier.config.js",

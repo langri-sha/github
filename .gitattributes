@@ -7,7 +7,6 @@
 /.prettierignore linguist-generated
 /.projen/** linguist-generated
 /CODEOWNERS linguist-generated
-/eslint.config.js linguist-generated
 /license linguist-generated
 /lint-staged.config.js linguist-generated
 /package.json linguist-generated

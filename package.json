@@ -30,17 +30,12 @@
     "@langri-sha/projen-project": "^0.15.0",
     "@langri-sha/tsconfig": "^0.10.1",
     "@types/lint-staged": "^13.3.0",
-    "eslint": "^9.8.0",
     "husky": "9.1.4",
     "lint-staged": "^15.2.7",
     "prettier": "^3.3.3",
     "projen": "0.84.8",
     "ts-node": "10.9.2",
     "typescript": "5.5.4"
-  },
-  "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
   },
   "packageManager": "pnpm@9.5.0",
   "engines": {
