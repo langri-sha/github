@@ -20,14 +20,12 @@ const project = new Project({
       '@langri-sha/prettier@*',
       '@langri-sha/projen-project@*',
       '@types/lint-staged@*',
-      'eslint@*',
       'lint-staged@*',
       'prettier@*',
       'projen@0.84.8',
       'ts-node@*',
       'typescript@*',
     ],
-    peerDeps: ['react-dom@^18.0.0', 'react@^18.0.0'],
     peerDependencyOptions: {
       pinnedDevDependency: false,
     },
@@ -36,7 +34,6 @@ const project = new Project({
     '*': '@langri-sha',
   },
   editorConfig: {},
-  eslint: {},
   husky: {
     'pre-commit': 'pnpm -q lint-staged',
   },
