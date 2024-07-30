@@ -24,8 +24,8 @@
     "renovate": "npx projen renovate"
   },
   "devDependencies": {
-    "@langri-sha/eslint-config": "^0.7.2",
-    "@langri-sha/lint-staged": "^0.8.0",
+    "@langri-sha/eslint-config": "^0.7.3",
+    "@langri-sha/lint-staged": "^0.9.0",
     "@langri-sha/prettier": "^0.4.0",
     "@langri-sha/projen-project": "^0.15.0",
     "@langri-sha/tsconfig": "^0.10.1",
