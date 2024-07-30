@@ -2,13 +2,13 @@
   "name": "@langri-sha/github",
   "version": "0.0.0",
   "private": true,
-  "homepage": "https://github.com/langri-sha/biro/#readme",
+  "homepage": "https://github.com/langri-sha/github/#readme",
   "bugs": {
-    "url": "https://github.com/langri-sha/biro/issues"
+    "url": "https://github.com/langri-sha/github/issues"
   },
   "repository": {
     "type": "git",
-    "url": "langri-sha/biro"
+    "url": "langri-sha/github"
   },
   "license": "MIT",
   "author": {

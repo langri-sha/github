@@ -6,12 +6,12 @@ const project = new Project({
     authorEmail: 'filip.dupanovic@gmail.com',
     authorName: 'Filip Dupanović',
     authorOrganization: false,
-    bugsUrl: 'https://github.com/langri-sha/biro/issues',
-    homepage: 'https://github.com/langri-sha/biro/#readme',
+    bugsUrl: 'https://github.com/langri-sha/github/issues',
+    homepage: 'https://github.com/langri-sha/github/#readme',
     license: 'MIT',
     licensed: true,
     minNodeVersion: '20.0.0',
-    repository: 'langri-sha/biro',
+    repository: 'langri-sha/github',
 
     type: 'module',
     devDeps: [
