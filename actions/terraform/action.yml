@@ -6,6 +6,13 @@ description: |-
 
   Runs in the current working directory.
 
+inputs:
+  working-directory:
+    description: |-
+      The working directory to use for reading the Terraform configuration.
+      Defaults to the current working directory.
+    required: false
+
 runs:
   using: composite
 
@@ -14,53 +21,10 @@ runs:
       shell: bash
       run: sudo apt-get update && sudo apt-get install -y ripgrep
 
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      shell: bash
-      run: echo "$GITHUB_CONTEXT"
-
-    - name: Dump job context
-      env:
-        JOB_CONTEXT: ${{ toJson(job) }}
-      shell: bash
-      run: echo "$JOB_CONTEXT"
-
-    - name: Dump steps context
-      env:
-        STEPS_CONTEXT: ${{ toJson(steps) }}
-      shell: bash
-      run: echo "$STEPS_CONTEXT"
-
-    - name: Dump runner context
-      env:
-        RUNNER_CONTEXT: ${{ toJson(runner) }}
-      shell: bash
-      run: echo "$RUNNER_CONTEXT"
-
-    - name: Dump strategy context
-      env:
-        STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-      shell: bash
-      run: echo "$STRATEGY_CONTEXT"
-
-    - name: Dump matrix context
-      env:
-        MATRIX_CONTEXT: ${{ toJson(matrix) }}
-      shell: bash
-      run: echo "$MATRIX_CONTEXT"
-
-    - name: debug
-      shell: bash
-      run: pwd
-
-    - name: debug
-      shell: bash
-      run: ls -lah
-
     - name: Get version
       id: version
       shell: bash
+      working-directory: ${{ inputs.working-directory || '.' }}
       run: |
         echo "terraform-version=$(rg "required_version = \"(\d+\.\d+\.\d+)\"" -t tf -or '$1' --no-filename | tail -1)" >> $GITHUB_OUTPUT
 
@@ -78,6 +42,7 @@ runs:
 
     - name: Initialize
       shell: bash
+      working-directory: ${{ inputs.working-directory || '.' }}
       run: terraform init -backend=false
 
     - name: Fail on lockfile changes
@@ -92,8 +57,10 @@ runs:
 
     - name: Format
       shell: bash
+      working-directory: ${{ inputs.working-directory || '.' }}
       run: terraform fmt -recursive -check
 
     - name: Validate
       shell: bash
+      working-directory: ${{ inputs.working-directory || '.' }}
       run: terraform validate
