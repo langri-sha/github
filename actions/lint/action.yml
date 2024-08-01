@@ -1,0 +1,11 @@
+name: Lint
+description: |-
+  Run lint checks in the workspace.
+
+runs:
+  using: composite
+
+  steps:
+    - name: Stub
+      shell: bash
+      run: echo "stub"
