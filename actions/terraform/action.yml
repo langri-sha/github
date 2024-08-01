@@ -14,6 +14,10 @@ runs:
       shell: bash
       run: sudo apt-get update && sudo apt-get install -y ripgrep
 
+    - name: debug
+      shell: bash
+      run: ls -lah
+
     - name: Get version
       id: version
       shell: bash
