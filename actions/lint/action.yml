@@ -11,6 +11,10 @@ inputs:
     description: |-
       Check sources with ESLint.
     default: 'false'
+  prettier:
+    description: |-
+      Check sources with Prettier.
+    default: 'false'
 
 runs:
   using: composite
@@ -21,3 +25,9 @@ runs:
       if: fromJson(inputs.eslint)
       run: |
         pnpm eslint ${{ fromJson(inputs.apply) == 'true' && '--fix' || ''}} .
+
+    - name: Prettier
+      shell: bash
+      if: fromJson(inputs.prettier)
+      run: |
+        pnpm prettier ${{ fromJson(inputs.apply) == 'true' && '--write' || '--check'}} .
