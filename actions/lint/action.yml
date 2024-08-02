@@ -7,11 +7,17 @@ inputs:
     description: |-
       Instead of running checks, apply changes.
     default: 'false'
+  eslint:
+    description: |-
+      Check sources with ESLint.
+    default: 'false'
 
 runs:
   using: composite
 
   steps:
-    - name: Stub
+    - name: ESLint
       shell: bash
-      run: echo "stub"
+      if: fromJson(inputs.eslint)
+      run: |
+        pnpm eslint ${{ fromJson(inputs.apply) == 'true' && '--fix' || ''}} .
