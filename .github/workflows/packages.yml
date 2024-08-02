@@ -1,13 +1,22 @@
 name: Packages
 
 on:
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        default: release
+    secrets:
+      NPM_TOKEN:
+        required: true
+      REPO_TOKEN:
+        required: true
 
 jobs:
   publish:
     name: Publish
     runs-on: ubuntu-latest
-    environment: release
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: Checkout
