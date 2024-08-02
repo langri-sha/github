@@ -23,6 +23,10 @@ inputs:
     description: |-
       Check sources with Prettier.
     default: 'false'
+  projen:
+    description: |-
+      Run Projen configuration for changes.
+    default: 'false'
   typescript:
     description: |-
       Run TypeScript type checks.
@@ -85,6 +89,19 @@ runs:
 
         if [[ $(git status --porcelain) ]]; then
           echo '::error::Some packages need fixing.'
+          git status
+          git diff
+          exit 1
+        fi
+
+    - name: Projen
+      if: fromJson(inputs.projen)
+      shell: bash
+      run: |
+        pnpx projen
+
+        if [[ $(git status --porcelain) ]] && [[ '${{ fromJson(inputs.apply) }}' == 'false' ]]; then
+          echo '::error::Some projen changes haven not been appplied. Run `pnpx projen`.'
           git status
           git diff
           exit 1
