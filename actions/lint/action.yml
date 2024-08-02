@@ -2,6 +2,12 @@ name: Lint
 description: |-
   Run lint checks in the workspace.
 
+inputs:
+  apply:
+    description: |-
+      Instead of running checks, apply changes.
+    default: 'false'
+
 runs:
   using: composite
 
