@@ -7,6 +7,10 @@ inputs:
     description: |-
       Instead of running checks, apply changes.
     default: 'false'
+  beachball:
+    description: |-
+      Check changes with Beachball.
+    default: 'false'
   eslint:
     description: |-
       Check sources with ESLint.
@@ -41,3 +45,21 @@ runs:
       if: fromJson(inputs.typescript) && !fromJson(inputs.apply)
       run: |
         pnpm tsc --build .
+
+    - name: Beachball
+      shell: bash
+      if: fromJson(inputs.beachball) && github.event_name == 'pull_request'
+      run: |
+        if [[ '${{ fromJson(inputs.apply) }}' == 'true' ]]; then
+          pnpm beachball change \
+            --message '${{ github.event.pull_request.title }}' \
+            --no-commit \
+            --type patch \
+            --yes
+        else
+          pnpm beachball check ||
+          (
+            echo "::error::Beachball changes detected. Run 'pnpm beachball change' and commit the changes.";
+            exit 1
+          )
+        fi
