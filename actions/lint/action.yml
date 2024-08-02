@@ -15,6 +15,10 @@ inputs:
     description: |-
       Check sources with Prettier.
     default: 'false'
+  typescript:
+    description: |-
+      Run TypeScript type checks.
+    default: 'false'
 
 runs:
   using: composite
@@ -31,3 +35,9 @@ runs:
       if: fromJson(inputs.prettier)
       run: |
         pnpm prettier ${{ fromJson(inputs.apply) == 'true' && '--write' || '--check'}} .
+
+    - name: TypeScript
+      shell: bash
+      if: fromJson(inputs.typescript) && !fromJson(inputs.apply)
+      run: |
+        pnpm tsc --build .
