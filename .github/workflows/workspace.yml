@@ -1,19 +1,14 @@
 name: Workspace
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_call:
 
 jobs:
   post-upgrade:
     name: Renovate Post-Upgrade
     runs-on: ubuntu-latest
 
-    if:
-      ${{ github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]'
-      }}
+    if: github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]'
     outputs:
       has-changes: ${{ steps.git-changes.outputs.has-changes }}
     steps:
