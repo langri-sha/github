@@ -67,7 +67,7 @@ jobs:
         if: inputs.beachball
         run: |
           pnpm beachball change \
-            --message "chore(deps): ${{ github.event.pull_request.title }}" \
+            --message "${{ github.event.pull_request.title }}" \
             --no-commit \
             --type patch \
             --yes
