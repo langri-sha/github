@@ -61,7 +61,7 @@ jobs:
 
       - name: Apply projen changes
         if: inputs.projen
-        run: pnpx projen
+        run: pnpm projen
 
       - name: Create Beachball changes
         if: inputs.beachball
@@ -180,10 +180,10 @@ jobs:
       - name: Check projen configuration
         if: inputs.projen
         run: |
-          pnpx projen
+          pnpm projen
 
           if [[ $(git status --porcelain) ]]; then
-            echo '::error::Some projen changes haven not been appplied. Run `pnpx projen`.'
+            echo '::error::Some projen changes haven not been appplied. Run `pnpm projen`.'
             git status
             git diff
             exit 1
