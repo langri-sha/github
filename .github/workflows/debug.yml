@@ -1,0 +1,23 @@
+name: Debug
+
+on:
+  workflow_call:
+
+jobs:
+  debug:
+    name: Debug
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Dump GitHub context
+        run: echo "${{ toJson(github) }}"
+      - name: Dump job context
+        run: echo "${{ toJson(job) }}"
+      - name: Dump steps context
+        run: echo "${{ toJson(steps) }}"
+      - name: Dump runner context
+        run: echo "${{ toJson(runner) }}"
+      - name: Dump strategy context
+        run: echo "${{ toJson(strategy) }}"
+      - name: Dump matrix context
+        run: echo "${{ toJson(matrix) }}"
