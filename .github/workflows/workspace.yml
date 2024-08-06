@@ -2,6 +2,11 @@ name: Workspace
 
 on:
   workflow_call:
+    inputs:
+      prettier:
+        description: Run Prettier checks.
+        type: boolean
+        default: false
 
 jobs:
   post-upgrade:
@@ -22,6 +27,7 @@ jobs:
         run: pnpm eslint --fix .
 
       - name: Apply Prettier fixes
+        if: inputs.prettier
         run: pnpm prettier --write .
 
       - name: Update Vitest snapshots
@@ -106,6 +112,7 @@ jobs:
         run: pnpm eslint .
 
       - name: Prettier
+        if: inputs.prettier
         run: pnpm prettier --check .
 
       - name: TypeScript
