@@ -19,6 +19,10 @@ on:
         description: Run TypeScript checks.
         type: boolean
         default: false
+      projen:
+        description: Run projen checks.
+        type: boolean
+        default: false
       vitest:
         description: Run Vitest checks.
         type: boolean
@@ -52,6 +56,7 @@ jobs:
         run: pnpm vitest --update --passWithNoTests
 
       - name: Apply projen changes
+        if: inputs.projen
         run: pnpx projen
 
       - name: Create Beachball changes
@@ -167,6 +172,7 @@ jobs:
           fi
 
       - name: Check projen configuration
+        if: inputs.projen
         run: |
           pnpx projen
 
