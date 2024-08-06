@@ -160,7 +160,7 @@ jobs:
       - name: Sort packages
         if: inputs.packages
         run: |
-          pnpx sort-package-json --check \
+          pnpx sort-package-json@latest --check \
             ./apps/*/package.json \
             ./packages/*/package.json \
             package.json
