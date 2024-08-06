@@ -3,6 +3,10 @@ name: Workspace
 on:
   workflow_call:
     inputs:
+      eslint:
+        description: Run ESLint checks.
+        type: boolean
+        default: false
       prettier:
         description: Run Prettier checks.
         type: boolean
@@ -24,6 +28,7 @@ jobs:
         uses: langri-sha/github/actions/pnpm@v0.3.0
 
       - name: Apply ESLint fixes
+        if: inputs.eslint
         run: pnpm eslint --fix .
 
       - name: Apply Prettier fixes
@@ -109,6 +114,7 @@ jobs:
         uses: langri-sha/github/actions/pnpm@v0.3.0
 
       - name: ESLint
+        if: inputs.eslint
         run: pnpm eslint .
 
       - name: Prettier
