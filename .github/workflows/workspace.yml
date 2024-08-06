@@ -19,6 +19,10 @@ on:
         description: Run TypeScript checks.
         type: boolean
         default: false
+      packages:
+        description: Run package checks.
+        type: boolean
+        default: false
       projen:
         description: Run projen checks.
         type: boolean
@@ -154,6 +158,7 @@ jobs:
           )
 
       - name: Sort packages
+        if: inputs.packages
         run: |
           pnpx sort-package-json --check \
             ./apps/*/package.json \
@@ -161,6 +166,7 @@ jobs:
             package.json
 
       - name: Check packages
+        if: inputs.packages
         run: |
           pnpm -r exec npm pkg fix
 
