@@ -3,6 +3,10 @@ name: Workspace
 on:
   workflow_call:
     inputs:
+      beachball:
+        description: Run Beachball checks.
+        type: boolean
+        default: false
       eslint:
         description: Run ESLint checks.
         type: boolean
@@ -51,6 +55,7 @@ jobs:
         run: pnpx projen
 
       - name: Create Beachball changes
+        if: inputs.beachball
         run: |
           pnpm beachball change \
             --message "chore(deps): ${{ github.event.pull_request.title }}" \
@@ -135,7 +140,7 @@ jobs:
         run: pnpm tsc --build .
 
       - name: Beachball
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && inputs.beachball
         run: |
           pnpm beachball check ||
           (
