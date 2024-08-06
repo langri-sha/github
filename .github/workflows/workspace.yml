@@ -11,6 +11,10 @@ on:
         description: Run Prettier checks.
         type: boolean
         default: false
+      typescript:
+        description: Run TypeScript checks.
+        type: boolean
+        default: false
 
 jobs:
   post-upgrade:
@@ -122,6 +126,7 @@ jobs:
         run: pnpm prettier --check .
 
       - name: TypeScript
+        if: inputs.typescript
         run: pnpm tsc --build .
 
       - name: Beachball
