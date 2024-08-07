@@ -9,7 +9,6 @@ on:
       registry-url:
         type: string
         default: https://registry.npmjs.org
-        required: true
       scope:
         type: string
         required: false
