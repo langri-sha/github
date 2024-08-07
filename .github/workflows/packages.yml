@@ -5,7 +5,7 @@ on:
     inputs:
       environment:
         type: string
-        default: release
+        required: false
     secrets:
       NPM_TOKEN:
         required: true
