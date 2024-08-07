@@ -193,7 +193,7 @@ jobs:
     name: Vitest
     runs-on: ubuntu-latest
     needs: [commit-upgrade-changes]
-    if: inputs.vitest
+    if: always() && inputs.vitest
 
     steps:
       - name: Checkout
