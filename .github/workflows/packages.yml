@@ -6,6 +6,10 @@ on:
       environment:
         type: string
         required: false
+      registry-url:
+        type: string
+        default: https://registry.npmjs.org
+        required: true
       scope:
         type: string
         required: false
@@ -31,7 +35,7 @@ jobs:
         uses: langri-sha/github/actions/pnpm@v0.4.0
         with:
           always-auth: true
-          registry-url: https://registry.npmjs.org
+          registry-url: ${{ inputs.registry-url }}
           scope: ${{ inputs.scope }}
 
       - name: Configure Git user
