@@ -1,4 +1,4 @@
-name: Workspace
+name: Check
 
 on:
   workflow_call:
