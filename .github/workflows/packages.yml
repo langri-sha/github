@@ -6,6 +6,9 @@ on:
       environment:
         type: string
         required: false
+      scope:
+        type: string
+        required: false
     secrets:
       NPM_TOKEN:
         required: true
@@ -29,7 +32,7 @@ jobs:
         with:
           always-auth: true
           registry-url: https://registry.npmjs.org
-          scope: '@langri-sha'
+          scope: ${{ inputs.scope }}
 
       - name: Configure Git user
         uses: ./.github/actions/github-action-bot-git-user
