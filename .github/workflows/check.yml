@@ -88,6 +88,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ steps.git-changes.outputs.has-changes }}
         with:
+          include-hidden-files: true
           name: diff
           path: .diff.patch
 
