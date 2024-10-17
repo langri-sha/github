@@ -49,7 +49,7 @@ const project = new Project({
 
 project.package?.addEngine('pnpm', '>= 9.0.0')
 project.package?.addField('main', 'src/index.tsx')
-project.package?.addField('packageManager', 'pnpm@9.5.0')
+project.package?.addField('packageManager', 'pnpm@9.12.2')
 project.package?.addField('private', true)
 
 project.tryFindObjectFile('tsconfig.json')?.addDeletionOverride('files')
