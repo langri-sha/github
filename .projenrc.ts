@@ -21,7 +21,7 @@ const project = new Project({
       '@types/lint-staged@*',
       'lint-staged@*',
       'prettier@*',
-      'projen@0.84.8',
+      'projen@0.88.6',
       'ts-node@*',
       'typescript@*',
     ],
