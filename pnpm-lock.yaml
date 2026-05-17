@@ -15,8 +15,8 @@ importers:
         specifier: ^0.4.0
         version: 0.4.0(prettier@3.3.3)
       '@langri-sha/projen-project':
-        specifier: ^0.15.0
-        version: 0.15.0(@babel/core@7.25.2)(@swc/core@1.7.3)(@types/babel__core@7.20.5)(beachball@2.43.1(typescript@5.5.4))(eslint@9.8.0)(husky@9.1.4)(jest@29.7.0(@types/node@22.0.0)(ts-node@10.9.2(@swc/core@1.7.3)(@types/node@22.0.0)(typescript@5.5.4)))(lint-staged@15.2.7)(prettier@3.3.3)(projen@0.84.8(constructs@10.3.0))(ts-node@10.9.2(@swc/core@1.7.3)(@types/node@22.0.0)(typescript@5.5.4))(typescript@5.5.4)
+        specifier: ^0.17.0
+        version: 0.17.0(@babel/core@7.25.2)(@swc/core@1.7.3)(@types/babel__core@7.20.5)(beachball@2.43.1(typescript@5.5.4))(eslint@9.8.0)(husky@9.1.4)(jest@29.7.0(@types/node@22.0.0)(ts-node@10.9.2(@swc/core@1.7.3)(@types/node@22.0.0)(typescript@5.5.4)))(lint-staged@15.2.7)(prettier@3.3.3)(projen@0.84.8(constructs@10.3.0))(ts-node@10.9.2(@swc/core@1.7.3)(@types/node@22.0.0)(typescript@5.5.4))(typescript@5.5.4)
       '@langri-sha/tsconfig':
         specifier: ^0.10.1
         version: 0.10.1(typescript@5.5.4)
@@ -378,11 +378,11 @@ packages:
       eslint: ^9.0.0
       projen: ^0.84.0
 
-  '@langri-sha/projen-husky@0.3.3':
-    resolution: {integrity: sha512-Cjf/aDJOWwJIQU0zBcW6mygwPHoke6svEGOXmaqDingds2jZuArHZsNdQyaul4CYbOLPgoz5A1vcB/cMxGnWOg==}
+  '@langri-sha/projen-husky@0.3.6':
+    resolution: {integrity: sha512-Rnje4ef+cA8LdodepoVQB1DAzm8K+QinTFGiWD4/lcsmjS16AcBlrr98bRMr1d7lc7Wk1HlD3cREWdHA2BDr/g==}
     peerDependencies:
       husky: ^9.0.1
-      projen: ^0.84.0
+      projen: ^0.86.0
 
   '@langri-sha/projen-jest-config@0.4.0':
     resolution: {integrity: sha512-+BWaSEyebSyeC6WQYESmyz+YfhleYGfJSAwhlLxftVZyffQK78hY+9mL2yi8WOFlWj7Bj8aYofL70LorVlbYQw==}
@@ -401,15 +401,15 @@ packages:
       lint-staged: ^15.0.0
       projen: ^0.84.0
 
-  '@langri-sha/projen-lint-synthesized@0.5.1':
-    resolution: {integrity: sha512-CdOM9ZZoxiZ5NaM9Jh035dSIpdewTj+QLyQ3Ze4uc3y0r+3eq2RInl2RnAZnZAnLxr+wgbLMiyl1J8P+xlKqeA==}
+  '@langri-sha/projen-lint-synthesized@0.5.2':
+    resolution: {integrity: sha512-p1AoTXjWIE6yovk1kTMPetG9ucgqnIE0HA7yd1cQXH/PMltcRWQR6a82+W32ITNSDoz0jYc3QpoqfyuvwzG5Gw==}
     peerDependencies:
-      projen: ^0.84.0
+      projen: ^0.86.0
 
-  '@langri-sha/projen-pnpm-workspace@0.3.0':
-    resolution: {integrity: sha512-7VvSCVlQfjna7FZIzUFGKH8kyEKP2Fnt8WcCMqCBQmdVCC7iWzUVEu5VEzu5wmCeUGYQzWriXJuxPa7G1hDfLA==}
+  '@langri-sha/projen-pnpm-workspace@0.3.1':
+    resolution: {integrity: sha512-dNnj5QQObW9Rc7r5rtLNgYy1zmXp6UpWrAOrfM+PH5/uA0L9G+iKZHJHdHn2BgAoeMBqCETKg30CyFmOnhPFPQ==}
     peerDependencies:
-      projen: ^0.84.0
+      projen: ^0.86.0
 
   '@langri-sha/projen-prettier@0.4.0':
     resolution: {integrity: sha512-hnbxozERXTlFDJnr91BvnR6BxzCgk+yGR30hEP0dUVDdP3qNRmlavXbpjBjdM3hxQMBYBAixCzUGU85cVBJJbA==}
@@ -417,8 +417,8 @@ packages:
       prettier: ^3.0.0
       projen: ^0.84.0
 
-  '@langri-sha/projen-project@0.15.0':
-    resolution: {integrity: sha512-jwF1UVOHrx0BRQYSImPNkJ3llZpPuos534jv1L21T/DxeO6TcWxAW0sYWotJ3iLfOSKCSNP5uJQC21VZHnG+4Q==}
+  '@langri-sha/projen-project@0.17.0':
+    resolution: {integrity: sha512-I6Gi2sXsjmEzsXSkMIU2+bE/uTAqmvkxyBENkSwGp89JeTsLBNkHKmjId40YQ0fl8c5RbzCpp9oGY6CrGsc8iQ==}
     peerDependencies:
       '@babel/core': ^7.8.0
       '@swc-node/register': ^1.0.0
@@ -430,7 +430,7 @@ packages:
       jest: ^28.0.0 || ^29.0.0
       lint-staged: ^15.0.0
       prettier: ^3.0.0
-      projen: ^0.84.0
+      projen: ^0.86.0
       ts-node: ^10.0.0
       typescript: ^5.5.0
     peerDependenciesMeta:
@@ -462,21 +462,21 @@ packages:
     peerDependencies:
       projen: ^0.84.0
 
-  '@langri-sha/projen-renovate@0.4.3':
-    resolution: {integrity: sha512-DLNLOv20R2QNVgtko1EdPQqT9XkwXRYrAKm8NJVQtQOoEX+SWcgVxPoiG/NhqllEcIxusTKbtv7rc2ggRyw2gA==}
+  '@langri-sha/projen-renovate@0.4.5':
+    resolution: {integrity: sha512-ZHuYLDSao0EWpOTKALQPBZzN2h9r6kukxKNDtXP7USCntRCvC9T+bCakxL4YY36XSwcbl4WSoa7v3HJUevQZaQ==}
     peerDependencies:
-      projen: ^0.84.0
+      projen: ^0.86.0
 
-  '@langri-sha/projen-swcrc@0.1.3':
-    resolution: {integrity: sha512-76JQUcWnkCnuBEO/I6XHfI7p25Cr9kipX0ZWZKOvR5885pPrcyEPpIjk0b71IeltzvRxtJksE4S1t7rNn1G3oA==}
+  '@langri-sha/projen-swcrc@0.1.5':
+    resolution: {integrity: sha512-28WR+SAD0OI7x6dREoZL/NzRDKLytuLLQTABYm8GmTCnte0/3PZFvR/g7M9CiSjjOsK+nSKH2H+KHhYJ/CS9EQ==}
     peerDependencies:
       '@swc/core': ^1.6.0
-      projen: ^0.84.0
+      projen: ^0.86.0
 
-  '@langri-sha/projen-typescript-config@0.5.1':
-    resolution: {integrity: sha512-e7lMrVScAUmdbT3GjxWTzzm1kiT485Hja5e93+hk9Pf+LHqujFiYRdzKjUN0wgdr0HUaRWeD92w1G+qDyJBd7w==}
+  '@langri-sha/projen-typescript-config@0.5.4':
+    resolution: {integrity: sha512-r2KGLGMVdg2AzcpuzgG4RfbL4gvmU/budioceY4a+zsjaW4lkyyE5tpCqd2uceSUdgliSfbppVAcr6NOPzHj8A==}
     peerDependencies:
-      projen: ^0.84.0
+      projen: ^0.86.0
 
   '@langri-sha/tsconfig@0.10.1':
     resolution: {integrity: sha512-P/LkoYbDLrW3pIuQK8P2zWWyl6wxA3TH+1P6BpwIKjEzKToiAefMNKI6+t5i/eZQQ5WSZi4xiBzbjy7Xl86Eaw==}
@@ -495,8 +495,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@schemastore/tsconfig@0.0.11':
-    resolution: {integrity: sha512-glWQsBTycNVlq8ZrdvvEGyvHCmTfJy+inpjby4DokwBEyRj5+SFyjWbh1OkZf1cXbdCzrR/fZAQSm5vS73PaYA==}
+  '@schemastore/tsconfig@0.0.12':
+    resolution: {integrity: sha512-eGy7hfJUeetZEeoh6ZS3QWr/OhfSIjnV5R42KWp9Z9yLDos0JeQMqhpouuTI/86bTO+PAk1NQAJdka8jFQIX1w==}
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
@@ -1101,7 +1101,7 @@ packages:
 
   glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
-    deprecated: Glob versions prior to v9 are no longer supported
+    deprecated: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   globals@11.12.0:
     resolution: {integrity: sha512-WOBp/EEGUiIsJSp7wcv/y6MO+lV9UoncWqxuFfm8eBwzWNgyfBd6Gz+IeKQ9jCmyhoH99g15M3T+QaVHFjizVA==}
@@ -1917,6 +1917,7 @@ packages:
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   v8-compile-cache-lib@3.0.1:
@@ -1968,8 +1969,8 @@ packages:
     engines: {node: '>= 14'}
     hasBin: true
 
-  yaml@2.5.0:
-    resolution: {integrity: sha512-2wWLbGbYDiSqqIKoPjar3MPgB94ErzCtrNE1FdqGuaO0pi2JGjmE8aW8TDZwzU7vuxcGRdL/4gPQwQ7hD5AMSw==}
+  yaml@2.6.0:
+    resolution: {integrity: sha512-a6ae//JvKDEra2kdi1qzCyrJW/WZCgFi8ydDV+eXExl95t+5R+ijnqHJbz9tmMh8FUjx3iv2fCQ4dclAQlO2UQ==}
     engines: {node: '>= 14'}
     hasBin: true
 
@@ -2455,7 +2456,7 @@ snapshots:
       projen: 0.84.8(constructs@10.3.0)
       serialize-javascript: 6.0.2
 
-  '@langri-sha/projen-husky@0.3.3(husky@9.1.4)(projen@0.84.8(constructs@10.3.0))':
+  '@langri-sha/projen-husky@0.3.6(husky@9.1.4)(projen@0.84.8(constructs@10.3.0))':
     dependencies:
       husky: 9.1.4
       projen: 0.84.8(constructs@10.3.0)
@@ -2477,7 +2478,7 @@ snapshots:
       projen: 0.84.8(constructs@10.3.0)
       serialize-javascript: 6.0.2
 
-  '@langri-sha/projen-lint-synthesized@0.5.1(projen@0.84.8(constructs@10.3.0))':
+  '@langri-sha/projen-lint-synthesized@0.5.2(projen@0.84.8(constructs@10.3.0))':
     dependencies:
       debug: 4.3.6
       execa: 8.0.1
@@ -2486,10 +2487,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@langri-sha/projen-pnpm-workspace@0.3.0(projen@0.84.8(constructs@10.3.0))':
+  '@langri-sha/projen-pnpm-workspace@0.3.1(projen@0.84.8(constructs@10.3.0))':
     dependencies:
       projen: 0.84.8(constructs@10.3.0)
-      yaml: 2.5.0
+      yaml: 2.6.0
 
   '@langri-sha/projen-prettier@0.4.0(prettier@3.3.3)(projen@0.84.8(constructs@10.3.0))':
     dependencies:
@@ -2497,24 +2498,24 @@ snapshots:
       projen: 0.84.8(constructs@10.3.0)
       serialize-javascript: 6.0.2
 
-  '@langri-sha/projen-project@0.15.0(@babel/core@7.25.2)(@swc/core@1.7.3)(@types/babel__core@7.20.5)(beachball@2.43.1(typescript@5.5.4))(eslint@9.8.0)(husky@9.1.4)(jest@29.7.0(@types/node@22.0.0)(ts-node@10.9.2(@swc/core@1.7.3)(@types/node@22.0.0)(typescript@5.5.4)))(lint-staged@15.2.7)(prettier@3.3.3)(projen@0.84.8(constructs@10.3.0))(ts-node@10.9.2(@swc/core@1.7.3)(@types/node@22.0.0)(typescript@5.5.4))(typescript@5.5.4)':
+  '@langri-sha/projen-project@0.17.0(@babel/core@7.25.2)(@swc/core@1.7.3)(@types/babel__core@7.20.5)(beachball@2.43.1(typescript@5.5.4))(eslint@9.8.0)(husky@9.1.4)(jest@29.7.0(@types/node@22.0.0)(ts-node@10.9.2(@swc/core@1.7.3)(@types/node@22.0.0)(typescript@5.5.4)))(lint-staged@15.2.7)(prettier@3.3.3)(projen@0.84.8(constructs@10.3.0))(ts-node@10.9.2(@swc/core@1.7.3)(@types/node@22.0.0)(typescript@5.5.4))(typescript@5.5.4)':
     dependencies:
       '@langri-sha/projen-babel': 0.4.0(@babel/core@7.25.2)(@types/babel__core@7.20.5)(projen@0.84.8(constructs@10.3.0))
       '@langri-sha/projen-beachball': 0.5.0(beachball@2.43.1(typescript@5.5.4))(projen@0.84.8(constructs@10.3.0))
       '@langri-sha/projen-codeowners': 0.5.0(projen@0.84.8(constructs@10.3.0))
       '@langri-sha/projen-editorconfig': 0.6.0(projen@0.84.8(constructs@10.3.0))
       '@langri-sha/projen-eslint': 0.3.0(eslint@9.8.0)(projen@0.84.8(constructs@10.3.0))
-      '@langri-sha/projen-husky': 0.3.3(husky@9.1.4)(projen@0.84.8(constructs@10.3.0))
+      '@langri-sha/projen-husky': 0.3.6(husky@9.1.4)(projen@0.84.8(constructs@10.3.0))
       '@langri-sha/projen-jest-config': 0.4.0(jest@29.7.0(@types/node@22.0.0)(ts-node@10.9.2(@swc/core@1.7.3)(@types/node@22.0.0)(typescript@5.5.4)))(projen@0.84.8(constructs@10.3.0))
       '@langri-sha/projen-license': 0.3.3(projen@0.84.8(constructs@10.3.0))
       '@langri-sha/projen-lint-staged': 0.3.0(lint-staged@15.2.7)(projen@0.84.8(constructs@10.3.0))
-      '@langri-sha/projen-lint-synthesized': 0.5.1(projen@0.84.8(constructs@10.3.0))
-      '@langri-sha/projen-pnpm-workspace': 0.3.0(projen@0.84.8(constructs@10.3.0))
+      '@langri-sha/projen-lint-synthesized': 0.5.2(projen@0.84.8(constructs@10.3.0))
+      '@langri-sha/projen-pnpm-workspace': 0.3.1(projen@0.84.8(constructs@10.3.0))
       '@langri-sha/projen-prettier': 0.4.0(prettier@3.3.3)(projen@0.84.8(constructs@10.3.0))
       '@langri-sha/projen-readme': 0.1.0(projen@0.84.8(constructs@10.3.0))
-      '@langri-sha/projen-renovate': 0.4.3(projen@0.84.8(constructs@10.3.0))
-      '@langri-sha/projen-swcrc': 0.1.3(@swc/core@1.7.3)(projen@0.84.8(constructs@10.3.0))
-      '@langri-sha/projen-typescript-config': 0.5.1(projen@0.84.8(constructs@10.3.0))
+      '@langri-sha/projen-renovate': 0.4.5(projen@0.84.8(constructs@10.3.0))
+      '@langri-sha/projen-swcrc': 0.1.5(@swc/core@1.7.3)(projen@0.84.8(constructs@10.3.0))
+      '@langri-sha/projen-typescript-config': 0.5.4(projen@0.84.8(constructs@10.3.0))
       projen: 0.84.8(constructs@10.3.0)
       ramda: 0.30.1
       typescript: 5.5.4
@@ -2536,18 +2537,18 @@ snapshots:
     dependencies:
       projen: 0.84.8(constructs@10.3.0)
 
-  '@langri-sha/projen-renovate@0.4.3(projen@0.84.8(constructs@10.3.0))':
+  '@langri-sha/projen-renovate@0.4.5(projen@0.84.8(constructs@10.3.0))':
     dependencies:
       projen: 0.84.8(constructs@10.3.0)
 
-  '@langri-sha/projen-swcrc@0.1.3(@swc/core@1.7.3)(projen@0.84.8(constructs@10.3.0))':
+  '@langri-sha/projen-swcrc@0.1.5(@swc/core@1.7.3)(projen@0.84.8(constructs@10.3.0))':
     dependencies:
       '@swc/core': 1.7.3
       projen: 0.84.8(constructs@10.3.0)
 
-  '@langri-sha/projen-typescript-config@0.5.1(projen@0.84.8(constructs@10.3.0))':
+  '@langri-sha/projen-typescript-config@0.5.4(projen@0.84.8(constructs@10.3.0))':
     dependencies:
-      '@schemastore/tsconfig': 0.0.11
+      '@schemastore/tsconfig': 0.0.12
       projen: 0.84.8(constructs@10.3.0)
 
   '@langri-sha/tsconfig@0.10.1(typescript@5.5.4)':
@@ -2566,7 +2567,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.17.1
 
-  '@schemastore/tsconfig@0.0.11': {}
+  '@schemastore/tsconfig@0.0.12': {}
 
   '@sinclair/typebox@0.27.8': {}
 
@@ -4146,7 +4147,7 @@ snapshots:
 
   yaml@2.4.5: {}
 
-  yaml@2.5.0: {}
+  yaml@2.6.0: {}
 
   yargs-parser@21.1.1: {}
 
