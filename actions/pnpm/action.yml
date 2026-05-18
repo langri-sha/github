@@ -30,7 +30,7 @@ runs:
 
   steps:
     - name: Setup PNPM
-      uses: pnpm/action-setup@v3
+      uses: pnpm/action-setup@v6
       with:
         run_install: false
 
