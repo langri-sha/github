@@ -27,7 +27,7 @@
     },
     {
       "name": "husky",
-      "version": "9.1.4",
+      "version": "9.1.7",
       "type": "build"
     },
     {
@@ -42,7 +42,7 @@
     },
     {
       "name": "projen",
-      "version": "0.84.8",
+      "version": "0.86.5",
       "type": "build"
     },
     {

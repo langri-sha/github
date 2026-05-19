@@ -8,6 +8,13 @@
   lockFileMaintenance: {
     enabled: true,
   },
+  packageRules: [
+    {
+      description: 'Prioritize updates in Projen configurations',
+      matchFileNames: ['/\\.?projen.*\\.(js|cjs|mjs|ts|mts|cts)$/'],
+      enabled: true,
+    },
+  ],
   customManagers: [
     {
       customType: 'regex',
@@ -15,13 +22,13 @@
       depNameTemplate: 'node',
       versioningTemplate: 'node',
       currentValueTemplate: '>= {{currentValue}}',
-      fileMatch: ['\\.?projen.*.(js|cjs|mjs|ts|mts|cts)$'],
+      managerFilePatterns: ['/\\.?projen.*.(js|cjs|mjs|ts|mts|cts)$/'],
       matchStrings: ["minNodeVersion:\\s*'(?<currentValue>[^']+)'"],
     },
     {
       customType: 'regex',
       datasourceTemplate: 'npm',
-      fileMatch: ['\\.?projen.*.(js|cjs|mjs|ts|mts|cts)$'],
+      managerFilePatterns: ['/\\.?projen.*.(js|cjs|mjs|ts|mts|cts)$/'],
       matchStringsStrategy: 'recursive',
       matchStrings: [
         '\\.(?<depType>addDeps|addDevDeps|addPeerDeps)\\([^)]*\\)',
@@ -32,7 +39,7 @@
     {
       customType: 'regex',
       datasourceTemplate: 'npm',
-      fileMatch: ['\\.?projen.*.(js|cjs|mjs|ts|mts|cts)$'],
+      managerFilePatterns: ['/\\.?projen.*.(js|cjs|mjs|ts|mts|cts)$/'],
       matchStringsStrategy: 'recursive',
       matchStrings: [
         '(?<depType>deps|devDeps|peerDeps):\\s*\\[[^\\]]*\\]',
@@ -43,8 +50,18 @@
     {
       customType: 'regex',
       datasourceTemplate: 'npm',
-      fileMatch: ['\\.?projen.*.(js|cjs|mjs|ts|mts|cts)$'],
+      managerFilePatterns: ['/\\.?projen.*.(js|cjs|mjs|ts|mts|cts)$/'],
       matchStrings: ["pnpm@(?<currentValue>[^']+)"],
+      depNameTemplate: 'pnpm',
+      depTypeTemplate: 'dependencies',
+    },
+    {
+      customType: 'regex',
+      datasourceTemplate: 'npm',
+      managerFilePatterns: ['/\\.(js|cjs|mjs|ts|mts|cts|ya?ml)$/'],
+      matchStrings: [
+        '(bun|p?np)x (?<depName>[\\w\\-\\/]+)@(?<currentValue>[^s]+)',
+      ],
       depNameTemplate: 'pnpm',
       depTypeTemplate: 'dependencies',
     },
