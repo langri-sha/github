@@ -31,6 +31,13 @@ on:
         description: Run Vitest checks.
         type: boolean
         default: false
+    secrets:
+      APP_ID:
+        description: GitHub App ID used for the post-upgrade push.
+        required: false
+      APP_PRIVATE_KEY:
+        description: GitHub App private key used for the post-upgrade push.
+        required: false
 
 jobs:
   post-upgrade:
