@@ -12,6 +12,12 @@ inputs:
       The working directory to use for reading the Terraform configuration.
       Defaults to the current working directory.
     required: false
+  terraform-version:
+    description: |-
+      The Terraform version to install. When set, takes precedence over the
+      version auto-detected from `required_version` in the working directory's
+      *.tf files. Falls back to that auto-detection, then to `latest`.
+    required: false
 
 runs:
   using: composite
@@ -29,7 +35,7 @@ runs:
         echo "terraform-version=$(rg "required_version = \"(\d+\.\d+\.\d+)\"" -t tf -or '$1' --no-filename | tail -1)" >> $GITHUB_OUTPUT
 
     - name: Warn missing version
-      if: steps.version.outputs.terraform-version == ''
+      if: inputs.terraform-version == '' && steps.version.outputs.terraform-version == ''
       shell: bash
       run: |
         echo "::warning::Missing Terraform version"
@@ -37,8 +43,7 @@ runs:
     - name: Setup
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version:
-          ${{ steps.version.outputs.terraform-version || 'latest' }}
+        terraform_version: ${{ inputs.terraform-version || steps.version.outputs.terraform-version || 'latest' }}
 
     - name: Initialize
       shell: bash
