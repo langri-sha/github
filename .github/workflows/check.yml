@@ -44,12 +44,16 @@ jobs:
     name: Renovate Post-Upgrade
     runs-on: ubuntu-latest
 
-    if: github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && (github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]')
+    permissions:
+      contents: read
     outputs:
       has-changes: ${{ steps.git-changes.outputs.has-changes }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup PNPM
         uses: langri-sha/github/actions/pnpm@v0.3.0
@@ -102,7 +106,7 @@ jobs:
   commit-upgrade-changes:
     name: Commit Upgrade Changes
     runs-on: ubuntu-latest
-    if: ${{ needs.post-upgrade.outputs.has-changes }}
+    if: needs.post-upgrade.outputs.has-changes == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && (github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]')
     needs: [post-upgrade]
 
     permissions:
@@ -115,6 +119,7 @@ jobs:
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
 
       - name: Checkout
         uses: actions/checkout@v6
@@ -126,6 +131,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: diff
+
+      - name: Reject unsafe paths in patch
+        run: |
+          git apply --check .diff.patch
+          if git apply --numstat .diff.patch | awk -F '\t' '{print $3}' | grep -E '^\.github/(workflows|actions)/'; then
+            echo '::error::Generated post-upgrade patches may not modify GitHub Actions files.'
+            exit 1
+          fi
 
       - name: Configure Git user
         env:
@@ -149,12 +162,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: [commit-upgrade-changes]
     if: always()
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          persist-credentials: false
 
       - name: Setup PNPM
         uses: langri-sha/github/actions/pnpm@v0.3.0
@@ -217,10 +233,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [commit-upgrade-changes]
     if: always() && inputs.vitest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Setup PNPM
         uses: langri-sha/github/actions/pnpm@v0.3.0
