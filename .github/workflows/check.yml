@@ -74,6 +74,10 @@ jobs:
         if: inputs.projen
         run: pnpm projen
 
+      - name: Stage generated changes
+        if: inputs.beachball
+        run: git add -A
+
       - name: Create Beachball changes
         if: inputs.beachball
         run: |
@@ -82,6 +86,10 @@ jobs:
             --no-commit \
             --type patch \
             --yes
+
+      - name: Check Beachball changes
+        if: inputs.beachball
+        run: pnpm beachball check
 
       - name: Check for Git changes
         id: git-changes
