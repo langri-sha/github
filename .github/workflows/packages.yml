@@ -53,4 +53,5 @@ jobs:
             --access public \
             --message "feat(beachball): Publish packages" \
             --new \
+            --verbose \
             --yes
