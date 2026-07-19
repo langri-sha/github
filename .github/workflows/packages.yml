@@ -39,7 +39,7 @@ jobs:
           scope: ${{ inputs.scope }}
 
       - name: Upgrade npm for OIDC trusted publishing
-        run: npm install -g npm@latest
+        run: npm install -g npm@11 # npm 12 array-wraps `npm show --json`, breaking beachball 2.65.5's registry read; 11.x still supports OIDC trusted publishing (>=11.5.1)
 
       - name: Configure Git user
         uses: langri-sha/github/actions/github-action-bot-git-user@v0.4.0
