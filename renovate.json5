@@ -14,6 +14,12 @@
       matchFileNames: ['/\\.?projen.*\\.(js|cjs|mjs|ts|mts|cts)$/'],
       enabled: true,
     },
+    {
+      description: 'Packages published from the langri-sha/projen monorepo',
+      groupName: 'langri-sha projen toolchain',
+      groupSlug: 'langri-sha-projen',
+      matchSourceUrls: ['https://github.com/langri-sha/projen'],
+    },
   ],
   customManagers: [
     {
