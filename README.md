@@ -47,9 +47,13 @@ jobs:
     with:
       scope: '@langri-sha'
     secrets:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
 ```
+
+`APP_ID` and `APP_PRIVATE_KEY` belong to a GitHub App installation whose token
+is used for the release Git operations; `secrets: inherit` works too. npm
+publishing uses OIDC trusted publishing, so no npm token is needed.
 
 ## Actions
 
