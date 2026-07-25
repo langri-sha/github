@@ -35,7 +35,9 @@ runs:
         echo "terraform-version=$(rg "required_version = \"(\d+\.\d+\.\d+)\"" -t tf -or '$1' --no-filename | tail -1)" >> $GITHUB_OUTPUT
 
     - name: Warn missing version
-      if: inputs.terraform-version == '' && steps.version.outputs.terraform-version == ''
+      if:
+        inputs.terraform-version == '' &&
+        steps.version.outputs.terraform-version == ''
       shell: bash
       run: |
         echo "::warning::Missing Terraform version"
@@ -43,7 +45,9 @@ runs:
     - name: Setup
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: ${{ inputs.terraform-version || steps.version.outputs.terraform-version || 'latest' }}
+        terraform_version:
+          ${{ inputs.terraform-version ||
+          steps.version.outputs.terraform-version || 'latest' }}
 
     - name: Initialize
       shell: bash
