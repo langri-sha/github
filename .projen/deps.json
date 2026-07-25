@@ -47,12 +47,17 @@
     },
     {
       "name": "ts-node",
-      "version": "10.9.2",
+      "version": "*",
+      "type": "build"
+    },
+    {
+      "name": "tsx",
+      "version": "4.22.4",
       "type": "build"
     },
     {
       "name": "typescript",
-      "version": "5.5.4",
+      "version": "5.9.3",
       "type": "build"
     }
   ],
