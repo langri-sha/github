@@ -13,7 +13,11 @@ on:
         type: string
         required: false
     secrets:
-      REPO_TOKEN:
+      APP_ID:
+        description: GitHub App ID used for authenticated release Git operations.
+        required: true
+      APP_PRIVATE_KEY:
+        description: GitHub App private key used for authenticated release Git operations.
         required: true
 
 jobs:
@@ -26,10 +30,18 @@ jobs:
       contents: read
 
     steps:
+      - name: Generate App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-contents: write
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          token: ${{ secrets.REPO_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup PNPM
         uses: langri-sha/github/actions/pnpm@v0.4.0
@@ -42,7 +54,14 @@ jobs:
         run: npm install -g npm@11 # npm 12 array-wraps `npm show --json`, breaking beachball 2.65.5's registry read; 11.x still supports OIDC trusted publishing (>=11.5.1)
 
       - name: Configure Git user
-        uses: langri-sha/github/actions/github-action-bot-git-user@v0.4.0
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          BOT_NAME="${APP_SLUG}[bot]"
+          BOT_ID=$(gh api "/users/${BOT_NAME}" -q .id)
+          git config user.name  "${BOT_NAME}"
+          git config user.email "${BOT_ID}+${BOT_NAME}@users.noreply.github.com"
 
       - name: Build composite projects
         run: pnpm tsc --build .
