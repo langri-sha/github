@@ -15,17 +15,19 @@ pnpm add @langri-sha/{repo-name}
 ## Usage
 
 ```ts
-import { something } from "@langri-sha/{repo-name}";
+import { something } from '@langri-sha/{repo-name}'
 
 // minimal working example
-const result = something({ option: "value" });
+const result = something({ option: 'value' })
 ```
 
 See [full API docs](https://langri-sha.com/{repo-name}) for all options.
 
 ## Contributing
 
-See [CONTRIBUTING.md](https://github.com/langri-sha/github/blob/main/CONTRIBUTING.md) for commit conventions, changelog, and release process.
+See
+[CONTRIBUTING.md](https://github.com/langri-sha/github/blob/main/CONTRIBUTING.md)
+for commit conventions, changelog, and release process.
 
 ## License
 
