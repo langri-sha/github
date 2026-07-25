@@ -24,26 +24,28 @@ jobs:
 
 Supported inputs:
 
-| Input | Type | Default | Description |
-|-------|------|---------|-------------|
-| `eslint` | `boolean` | `false` | Run ESLint |
-| `prettier` | `boolean` | `false` | Run Prettier |
-| `typescript` | `boolean` | `false` | Run TypeScript type-check |
-| `vitest` | `boolean` | `false` | Run Vitest tests |
-| `beachball` | `boolean` | `false` | Run Beachball change-file check |
-| `packages` | `boolean` | `false` | Validate package.json files |
-| `projen` | `boolean` | `false` | Run projen synthesis check |
+| Input        | Type      | Default | Description                     |
+| ------------ | --------- | ------- | ------------------------------- |
+| `eslint`     | `boolean` | `false` | Run ESLint                      |
+| `prettier`   | `boolean` | `false` | Run Prettier                    |
+| `typescript` | `boolean` | `false` | Run TypeScript type-check       |
+| `vitest`     | `boolean` | `false` | Run Vitest tests                |
+| `beachball`  | `boolean` | `false` | Run Beachball change-file check |
+| `packages`   | `boolean` | `false` | Validate package.json files     |
+| `projen`     | `boolean` | `false` | Run projen synthesis check      |
 
 ### `packages.yml`
 
-Publishes packages to npm via [Beachball](https://microsoft.github.io/beachball/). Called after merging to main:
+Publishes packages to npm via
+[Beachball](https://microsoft.github.io/beachball/). Called after merging to
+main:
 
 ```yaml
 jobs:
   publish:
     uses: langri-sha/github/.github/workflows/packages.yml@v0
     with:
-      scope: "@langri-sha"
+      scope: '@langri-sha'
     secrets:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       REPO_TOKEN: ${{ secrets.REPO_TOKEN }}
@@ -51,17 +53,18 @@ jobs:
 
 ## Actions
 
-| Action | Description |
-|--------|-------------|
-| [`actions/pnpm`](actions/pnpm/) | Set up pnpm with caching |
+| Action                                                                      | Description                              |
+| --------------------------------------------------------------------------- | ---------------------------------------- |
+| [`actions/pnpm`](actions/pnpm/)                                             | Set up pnpm with caching                 |
 | [`actions/github-action-bot-git-user`](actions/github-action-bot-git-user/) | Configure git user as GitHub Actions bot |
-| [`actions/google-cloud-platform`](actions/google-cloud-platform/) | Authenticate to Google Cloud |
-| [`actions/terraform`](actions/terraform/) | Set up Terraform |
+| [`actions/google-cloud-platform`](actions/google-cloud-platform/)           | Authenticate to Google Cloud             |
+| [`actions/terraform`](actions/terraform/)                                   | Set up Terraform                         |
 
 ## Templates
 
 - [README template](docs/README-template.md) — standard layout for all repos
-- [CONTRIBUTING](CONTRIBUTING.md) — commit conventions, changelog, and release process
+- [CONTRIBUTING](CONTRIBUTING.md) — commit conventions, changelog, and release
+  process
 
 ## License
 
