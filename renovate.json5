@@ -15,6 +15,11 @@
       enabled: true,
     },
     {
+      description: 'Keep Node.js typings on the major supported by the runtime',
+      matchPackageNames: ['@types/node'],
+      allowedVersions: '^20',
+    },
+    {
       description: 'Packages published from the langri-sha/projen monorepo',
       groupName: 'langri-sha projen toolchain',
       groupSlug: 'langri-sha-projen',
