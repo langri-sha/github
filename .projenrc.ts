@@ -18,7 +18,6 @@ const project = new Project({
       '@langri-sha/lint-staged@*',
       '@langri-sha/prettier@*',
       '@langri-sha/projen-project@*',
-      '@types/lint-staged@*',
       'lint-staged@*',
       'prettier@*',
       'projen@0.84.8',
