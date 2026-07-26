@@ -13,8 +13,8 @@ on:
         type: string
         required: false
     secrets:
-      APP_ID:
-        description: GitHub App ID used for authenticated release Git operations.
+      APP_CLIENT_ID:
+        description: GitHub App Client ID used for authenticated release Git operations.
         required: true
       APP_PRIVATE_KEY:
         description: GitHub App private key used for authenticated release Git operations.
@@ -34,7 +34,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           permission-contents: write
 

@@ -47,12 +47,12 @@ jobs:
     with:
       scope: '@langri-sha'
     secrets:
-      APP_ID: ${{ secrets.APP_ID }}
+      APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
       APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
 ```
 
-`APP_ID` and `APP_PRIVATE_KEY` belong to a GitHub App installation whose token
-is used for the release Git operations; `secrets: inherit` works too. npm
+`APP_CLIENT_ID` and `APP_PRIVATE_KEY` belong to a GitHub App installation whose
+token is used for the release Git operations; `secrets: inherit` works too. npm
 publishing uses OIDC trusted publishing, so no npm token is needed.
 
 ## Actions
