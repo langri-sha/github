@@ -16,8 +16,17 @@ inputs:
     description: |-
       The Terraform version to install. When set, takes precedence over the
       version auto-detected from `required_version` in the working directory's
-      *.tf files. Falls back to that auto-detection, then to `latest`.
+      *.tf files. Falls back to that auto-detection, then to `latest` unless
+      `fail-on-unresolved-version` is set.
     required: false
+  fail-on-unresolved-version:
+    description: |-
+      Fail when the version can be resolved neither from `terraform-version` nor
+      from `required_version`, instead of installing `latest`. Defaults to
+      `false` to preserve existing behaviour; set it to `true` to be told when
+      the version is not the one the configuration asks for.
+    required: false
+    default: 'false'
 
 runs:
   using: composite
@@ -34,10 +43,21 @@ runs:
       run: |
         echo "terraform-version=$(rg "required_version = \"(\d+\.\d+\.\d+)\"" -t tf -or '$1' --no-filename | tail -1)" >> $GITHUB_OUTPUT
 
+    - name: Fail on missing version
+      if:
+        inputs.terraform-version == '' &&
+        steps.version.outputs.terraform-version == '' &&
+        inputs.fail-on-unresolved-version == 'true'
+      shell: bash
+      run: |
+        echo "::error::Could not resolve the Terraform version. Declare required_version in ${{ inputs.working-directory || '.' }}, or pass the terraform-version input."
+        exit 1
+
     - name: Warn missing version
       if:
         inputs.terraform-version == '' &&
-        steps.version.outputs.terraform-version == ''
+        steps.version.outputs.terraform-version == '' &&
+        inputs.fail-on-unresolved-version != 'true'
       shell: bash
       run: |
         echo "::warning::Missing Terraform version"
