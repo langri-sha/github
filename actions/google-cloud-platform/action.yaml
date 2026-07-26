@@ -73,7 +73,7 @@ runs:
       shell: bash
 
     - name: Authenticate to Google Cloud Artifact Registry
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       if: inputs.setup_docker != ''
       with:
         username: oauth2accesstoken
@@ -81,7 +81,7 @@ runs:
         registry: ${{ inputs.location }}-docker.pkg.dev
 
     - name: Authenticate to Google Container Registry
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       if: inputs.setup_docker != ''
       with:
         username: oauth2accesstoken
