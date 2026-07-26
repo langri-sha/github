@@ -104,7 +104,7 @@ jobs:
           git diff --cached > .diff.patch
 
       - name: Upload diff
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: ${{ steps.git-changes.outputs.has-changes }}
         with:
           include-hidden-files: true
@@ -136,7 +136,7 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
 
       - name: Download diff
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: diff
 
