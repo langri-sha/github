@@ -46,6 +46,11 @@ const project = new Project({
         groupSlug: 'langri-sha-projen',
         matchSourceUrls: ['https://github.com/langri-sha/projen'],
       },
+      {
+        description: 'Install our own packages without waiting them out',
+        matchPackageNames: ['@langri-sha/**'],
+        minimumReleaseAge: null,
+      },
     ],
   },
   typeScriptConfig: {
