@@ -2,9 +2,6 @@ name: PNPM
 description: |-
   Configures PNPM and Node.js, and installs dependencies.
 inputs:
-  always-auth:
-    description: 'Set always-auth in npmrc.'
-    default: 'false'
   registry-url:
     description:
       'Optional registry to set up for auth. Will set the registry in a project
@@ -37,7 +34,6 @@ runs:
     - name: Setup Node.js
       uses: actions/setup-node@v7
       with:
-        always-auth: ${{ inputs.always-auth }}
         cache: pnpm
         node-version-file: package.json
         registry-url: ${{ inputs.registry-url }}

@@ -46,7 +46,6 @@ jobs:
       - name: Setup PNPM
         uses: langri-sha/github/actions/pnpm@v0.12.0
         with:
-          always-auth: true
           registry-url: ${{ inputs.registry-url }}
           scope: ${{ inputs.scope }}
 
