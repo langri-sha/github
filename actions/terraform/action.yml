@@ -28,6 +28,20 @@ inputs:
     required: false
     default: 'false'
 
+outputs:
+  # Relies on `Get version` running unconditionally: it carries no `if:` guard,
+  # so `steps.version.outputs.terraform-version` is always defined. Revisit this
+  # value if that step ever gains one.
+  terraform-version:
+    description: |-
+      The Terraform version that was installed. Resolved from the
+      `terraform-version` input, then from `required_version`. Empty when
+      neither resolved: the `latest` fallback that `Setup` uses is deliberately
+      not exported, so callers cannot pass it on and install an arbitrary
+      version.
+    value:
+      ${{ inputs.terraform-version || steps.version.outputs.terraform-version }}
+
 runs:
   using: composite
 
