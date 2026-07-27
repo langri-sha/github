@@ -55,7 +55,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory || '.' }}
       run: |
-        echo "terraform-version=$(rg "required_version = \"(\d+\.\d+\.\d+)\"" -t tf -or '$1' --no-filename | tail -1)" >> $GITHUB_OUTPUT
+        echo "terraform-version=$(rg "required_version = \"(\d+\.\d+\.\d+)\"" -t tf -or '$1' --no-filename . | tail -1)" >> $GITHUB_OUTPUT
 
     - name: Fail on missing version
       if:
