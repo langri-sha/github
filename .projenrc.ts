@@ -50,7 +50,7 @@ const project = new Project({
   },
   typeScriptConfig: {
     config: {
-      extends: '@langri-sha/tsconfig/react.json',
+      extends: ['@langri-sha/tsconfig', '@langri-sha/tsconfig/react.json'],
     },
   },
 })
