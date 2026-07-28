@@ -11,6 +11,7 @@
     "CODEOWNERS",
     "license",
     "lint-staged.config.js",
+    "pnpm-workspace.yaml",
     "prettier.config.js",
     "renovate.json5",
     "tsconfig.json"

@@ -29,5 +29,6 @@ node_modules/
 !/.editorconfig
 !/license
 !/lint-staged.config.js
+!/pnpm-workspace.yaml
 !/renovate.json5
 !/.projenrc.ts
