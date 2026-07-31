@@ -20,7 +20,6 @@ const project = new Project({
       '@langri-sha/projen-project@*',
       'lint-staged@*',
       'prettier@*',
-      'projen@0.84.8',
       'ts-node@*',
       'typescript@*',
     ],
