@@ -31,7 +31,7 @@
     "husky": "9.1.7",
     "lint-staged": "^17.0.0",
     "prettier": "^3.3.3",
-    "projen": "0.86.5",
+    "projen": "0.101.21",
     "ts-node": "10.9.2",
     "tsx": "4.23.1",
     "typescript": "5.9.3"
