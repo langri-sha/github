@@ -20,7 +20,6 @@ const project = new Project({
       '@langri-sha/projen-project@*',
       'lint-staged@17.3.0',
       'prettier@3.9.6',
-      'ts-node@10.9.2',
     ],
     peerDependencyOptions: {
       pinnedDevDependency: false,
