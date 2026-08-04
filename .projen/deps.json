@@ -2,12 +2,12 @@
   "dependencies": [
     {
       "name": "@langri-sha/lint-staged",
-      "version": "*",
+      "version": "0.9.6",
       "type": "build"
     },
     {
       "name": "@langri-sha/prettier",
-      "version": "*",
+      "version": "0.4.6",
       "type": "build"
     },
     {
@@ -27,12 +27,12 @@
     },
     {
       "name": "lint-staged",
-      "version": "*",
+      "version": "17.3.0",
       "type": "build"
     },
     {
       "name": "prettier",
-      "version": "*",
+      "version": "3.9.6",
       "type": "build"
     },
     {
@@ -42,7 +42,7 @@
     },
     {
       "name": "ts-node",
-      "version": "*",
+      "version": "10.9.2",
       "type": "build"
     },
     {

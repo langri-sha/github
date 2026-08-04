@@ -15,12 +15,12 @@ const project = new Project({
 
     type: 'module',
     devDeps: [
-      '@langri-sha/lint-staged@*',
-      '@langri-sha/prettier@*',
+      '@langri-sha/lint-staged@0.9.6',
+      '@langri-sha/prettier@0.4.6',
       '@langri-sha/projen-project@*',
-      'lint-staged@*',
-      'prettier@*',
-      'ts-node@*',
+      'lint-staged@17.3.0',
+      'prettier@3.9.6',
+      'ts-node@10.9.2',
     ],
     peerDependencyOptions: {
       pinnedDevDependency: false,
