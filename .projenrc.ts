@@ -21,7 +21,6 @@ const project = new Project({
       'lint-staged@*',
       'prettier@*',
       'ts-node@*',
-      'typescript@*',
     ],
     peerDependencyOptions: {
       pinnedDevDependency: false,

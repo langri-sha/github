@@ -52,7 +52,7 @@
     },
     {
       "name": "typescript",
-      "version": "*",
+      "version": "5.9.3",
       "type": "build"
     }
   ],
