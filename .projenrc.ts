@@ -39,6 +39,7 @@ const project = new Project({
     allowBuilds: {
       '@swc/core': true,
       esbuild: true,
+      'unrs-resolver': false,
     },
   },
   prettier: {},
