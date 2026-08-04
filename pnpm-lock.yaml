@@ -9,10 +9,10 @@ importers:
   .:
     devDependencies:
       '@langri-sha/lint-staged':
-        specifier: ^0.9.3
+        specifier: 0.9.6
         version: 0.9.6(eslint@10.8.0)(lint-staged@17.3.0)(prettier@3.9.6)
       '@langri-sha/prettier':
-        specifier: ^0.4.6
+        specifier: 0.4.6
         version: 0.4.6(prettier@3.9.6)
       '@langri-sha/projen-project':
         specifier: ^0.25.0
@@ -24,10 +24,10 @@ importers:
         specifier: 9.1.7
         version: 9.1.7
       lint-staged:
-        specifier: ^17.0.0
+        specifier: 17.3.0
         version: 17.3.0
       prettier:
-        specifier: ^3.3.3
+        specifier: 3.9.6
         version: 3.9.6
       projen:
         specifier: 0.86.5
