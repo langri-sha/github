@@ -36,11 +36,6 @@ const project = new Project({
   lintSynthesized: {},
   pnpmWorkspace: {
     minimumReleaseAgeExclude: ['@langri-sha/*'],
-    allowBuilds: {
-      '@swc/core': true,
-      esbuild: true,
-      'unrs-resolver': false,
-    },
   },
   prettier: {},
   renovate: {
