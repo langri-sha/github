@@ -18,7 +18,7 @@ const project = new Project({
       '@langri-sha/lint-staged@0.9.7',
       '@langri-sha/prettier@0.4.6',
       '@langri-sha/projen-project@*',
-      'lint-staged@17.3.0',
+      'lint-staged@17.4.1',
       'prettier@3.9.6',
     ],
     peerDependencyOptions: {
