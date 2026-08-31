@@ -26,7 +26,7 @@
   "devDependencies": {
     "@langri-sha/lint-staged": "0.9.7",
     "@langri-sha/prettier": "0.4.6",
-    "@langri-sha/projen-project": "^0.27.0",
+    "@langri-sha/projen-project": "^0.28.0",
     "@langri-sha/tsconfig": "^1.0.1",
     "husky": "9.1.7",
     "lint-staged": "17.4.1",
