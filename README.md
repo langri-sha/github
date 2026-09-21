@@ -33,6 +33,13 @@ Supported inputs:
 | `beachball`  | `boolean` | `false` | Run Beachball change-file check |
 | `packages`   | `boolean` | `false` | Validate package.json files     |
 | `projen`     | `boolean` | `false` | Run projen synthesis check      |
+| `dagger`     | `boolean` | `false` | Run Dagger checks               |
+
+With `dagger` set, `dagger check` runs the repository's Dagger workspace in
+place of the Lint and Vitest jobs, at the engine version
+[`actions/dagger-version`](actions/dagger-version/) resolves from its module
+manifests, and the other inputs only pick the fixes the Renovate post-upgrade
+job applies.
 
 ### `packages.yml`
 

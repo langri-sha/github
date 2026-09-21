@@ -7,6 +7,13 @@ on:
         description: Run Beachball checks.
         type: boolean
         default: false
+      dagger:
+        description: >-
+          Run `dagger check` in place of the Lint and Vitest jobs, with the
+          engine version the Dagger modules pin. The other inputs then only pick
+          the post-upgrade fixes.
+        type: boolean
+        default: false
       eslint:
         description: Run ESLint checks.
         type: boolean
@@ -169,7 +176,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     needs: [commit-upgrade-changes]
-    if: always()
+    if: always() && !inputs.dagger
     permissions:
       contents: read
 
@@ -240,7 +247,7 @@ jobs:
     name: Vitest
     runs-on: ubuntu-latest
     needs: [commit-upgrade-changes]
-    if: always() && inputs.vitest
+    if: always() && inputs.vitest && !inputs.dagger
     permissions:
       contents: read
 
@@ -255,3 +262,27 @@ jobs:
 
       - name: Vitest
         run: pnpm vitest --passWithNoTests
+
+  dagger:
+    name: Dagger
+    runs-on: ubuntu-latest
+    needs: [commit-upgrade-changes]
+    if: always() && inputs.dagger && needs.commit-upgrade-changes.result != 'success'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Resolve Dagger version
+        id: dagger-version
+        uses: langri-sha/github/actions/dagger-version@7f9d4d252c13576d0cd00b6df4c285a1a6a4d393
+
+      - name: Check
+        uses: dagger/dagger-for-github@v8.4.1
+        with:
+          version: ${{ steps.dagger-version.outputs.version }}
+          verb: check
