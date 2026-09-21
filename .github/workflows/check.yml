@@ -279,7 +279,7 @@ jobs:
 
       - name: Resolve Dagger version
         id: dagger-version
-        uses: langri-sha/github/actions/dagger-version@7f9d4d252c13576d0cd00b6df4c285a1a6a4d393
+        uses: langri-sha/github/actions/dagger-version@v0.15.0
 
       - name: Check
         uses: dagger/dagger-for-github@v8.4.1
