@@ -63,6 +63,7 @@ publishing uses OIDC trusted publishing, so no npm token is needed.
 | [`actions/github-action-bot-git-user`](actions/github-action-bot-git-user/) | Configure git user as GitHub Actions bot |
 | [`actions/google-cloud-platform`](actions/google-cloud-platform/)           | Authenticate to Google Cloud             |
 | [`actions/terraform`](actions/terraform/)                                   | Set up Terraform                         |
+| [`actions/dagger-version`](actions/dagger-version/)                         | Resolve the Dagger engine version        |
 
 ## Templates
 
