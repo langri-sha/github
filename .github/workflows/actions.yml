@@ -1,0 +1,57 @@
+name: Actions
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/actions.yml
+      - actions/dagger-version/**
+  pull_request:
+    paths:
+      - .github/workflows/actions.yml
+      - actions/dagger-version/**
+
+jobs:
+  dagger-version:
+    name: Dagger version (${{ matrix.fixture }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - fixture: valid
+            version: v1.0.0-beta.14
+          - fixture: no-manifests
+          - fixture: missing-engine-version
+          - fixture: invalid-engine-version
+          - fixture: mismatched-engine-versions
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Resolve version
+        id: resolve
+        continue-on-error: true
+        uses: ./actions/dagger-version
+        with:
+          working-directory: actions/dagger-version/fixtures/${{ matrix.fixture }}
+
+      - name: Check result
+        env:
+          OUTCOME: ${{ steps.resolve.outcome }}
+          ACTUAL: ${{ steps.resolve.outputs.version }}
+          EXPECTED: ${{ matrix.version }}
+        run: |
+          expected_outcome=$([[ -n "$EXPECTED" ]] && echo success || echo failure)
+
+          if [[ "$OUTCOME" != "$expected_outcome" || "$ACTUAL" != "$EXPECTED" ]]; then
+            echo "::error::Expected $expected_outcome with version '$EXPECTED', got $OUTCOME with version '$ACTUAL'."
+            exit 1
+          fi

@@ -1,0 +1,90 @@
+name: Dagger version
+description: |-
+  Resolves the Dagger engine version a Dagger 1.0 workspace is built against,
+  from the `engineVersion` of every tracked `dagger-module.toml`. Fails, instead
+  of falling back to `latest`, when there are no such manifests, when one lacks
+  a valid `engineVersion`, or when they disagree.
+
+  Requires Git and Python 3.11 or later on the runner.
+
+inputs:
+  working-directory:
+    description: |-
+      The directory to search for tracked `dagger-module.toml` manifests,
+      recursively. Defaults to the current working directory.
+    required: false
+
+outputs:
+  version:
+    description: |-
+      The resolved engine version, e.g. `v1.0.0-beta.14`, for the `version`
+      input of `dagger/dagger-for-github`.
+    value: ${{ steps.version.outputs.version }}
+
+runs:
+  using: composite
+
+  steps:
+    - name: Resolve version
+      id: version
+      shell: python
+      working-directory: ${{ inputs.working-directory || '.' }}
+      run: |
+        import os
+        import re
+        import subprocess
+        import sys
+        import tomllib
+
+        # Consumers interpolate the output into shell scripts, so anything that
+        # is not a plain version must never reach them.
+        VERSION = re.compile(r"v?\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?")
+
+        listing = subprocess.run(
+            ["git", "ls-files", "-z", "--", "dagger-module.toml", "*/dagger-module.toml"],
+            capture_output=True,
+            text=True,
+        )
+        if listing.returncode:
+            print(f"::error::Could not list tracked files: {' '.join(listing.stderr.split())}")
+            sys.exit(1)
+
+        paths = sorted(filter(None, listing.stdout.split("\0")))
+        errors = []
+        versions = {}
+
+        if not paths:
+            errors.append(f"No tracked dagger-module.toml found in {os.getcwd()}")
+
+        for path in paths:
+            try:
+                with open(path, "rb") as file:
+                    version = tomllib.load(file).get("engineVersion")
+            except (OSError, tomllib.TOMLDecodeError) as error:
+                errors.append(f"Could not read {path}: {error}")
+                continue
+
+            if version is None:
+                errors.append(f"{path} does not declare engineVersion")
+            elif not isinstance(version, str) or not VERSION.fullmatch(version):
+                errors.append(f"{path} declares an invalid engineVersion: {version!r}")
+            else:
+                versions.setdefault(f"v{version.removeprefix('v')}", []).append(path)
+
+        if len(versions) > 1:
+            errors.append(
+                "Modules disagree on engineVersion: "
+                + "; ".join(f"{version} in {', '.join(sources)}" for version, sources in versions.items())
+            )
+
+        for error in errors:
+            print(f"::error::{error}")
+
+        if errors:
+            sys.exit(1)
+
+        [version] = versions
+        print(f"Resolved Dagger engine {version} from {', '.join(paths)}")
+
+        with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+            print(f"version={version}", file=output)
