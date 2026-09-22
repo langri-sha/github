@@ -63,7 +63,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.15.0
+        uses: langri-sha/github/actions/pnpm@v0.15.1
 
       - name: Apply ESLint fixes
         if: inputs.eslint
@@ -188,7 +188,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.15.0
+        uses: langri-sha/github/actions/pnpm@v0.15.1
 
       - name: ESLint
         if: inputs.eslint
@@ -258,7 +258,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.15.0
+        uses: langri-sha/github/actions/pnpm@v0.15.1
 
       - name: Vitest
         run: pnpm vitest --passWithNoTests
@@ -279,7 +279,7 @@ jobs:
 
       - name: Resolve Dagger version
         id: dagger-version
-        uses: langri-sha/github/actions/dagger-version@v0.15.0
+        uses: langri-sha/github/actions/dagger-version@v0.15.1
 
       - name: Check
         uses: dagger/dagger-for-github@v8.4.1
