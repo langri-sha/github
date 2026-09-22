@@ -63,7 +63,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.14.1
+        uses: langri-sha/github/actions/pnpm@v0.15.0
 
       - name: Apply ESLint fixes
         if: inputs.eslint
@@ -188,7 +188,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.14.1
+        uses: langri-sha/github/actions/pnpm@v0.15.0
 
       - name: ESLint
         if: inputs.eslint
@@ -258,7 +258,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.14.1
+        uses: langri-sha/github/actions/pnpm@v0.15.0
 
       - name: Vitest
         run: pnpm vitest --passWithNoTests
