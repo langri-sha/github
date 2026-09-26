@@ -14,6 +14,16 @@ on:
           the post-upgrade fixes.
         type: boolean
         default: false
+      posthog-host:
+        description: PostHog ingestion host that Dagger traces are exported to.
+        type: string
+        default: https://eu.i.posthog.com
+      posthog-project-token:
+        description: >-
+          PostHog project token. When set, Dagger traces are exported to
+          PostHog.
+        type: string
+        default: ''
       eslint:
         description: Run ESLint checks.
         type: boolean
@@ -283,6 +293,13 @@ jobs:
 
       - name: Check
         uses: dagger/dagger-for-github@v8.4.1
+        env:
+          OTEL_EXPORTER_OTLP_TRACES_PROTOCOL: http/protobuf
+          OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: ${{ inputs.posthog-project-token && format('{0}/i/v1/traces', inputs.posthog-host) || '' }}
+          # Dagger's exporter only reads the generic headers variable and
+          # overrides OTEL_EXPORTER_OTLP_TRACES_HEADERS.
+          OTEL_EXPORTER_OTLP_HEADERS: ${{ inputs.posthog-project-token && format('Authorization=Bearer {0}', inputs.posthog-project-token) || '' }}
+          OTEL_RESOURCE_ATTRIBUTES: github.repository=${{ github.repository }},github.ref=${{ github.ref }},github.sha=${{ github.sha }},github.run_id=${{ github.run_id }},github.run_attempt=${{ github.run_attempt }}
         with:
           version: ${{ steps.dagger-version.outputs.version }}
           verb: check

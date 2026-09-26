@@ -24,22 +24,29 @@ jobs:
 
 Supported inputs:
 
-| Input        | Type      | Default | Description                     |
-| ------------ | --------- | ------- | ------------------------------- |
-| `eslint`     | `boolean` | `false` | Run ESLint                      |
-| `prettier`   | `boolean` | `false` | Run Prettier                    |
-| `typescript` | `boolean` | `false` | Run TypeScript type-check       |
-| `vitest`     | `boolean` | `false` | Run Vitest tests                |
-| `beachball`  | `boolean` | `false` | Run Beachball change-file check |
-| `packages`   | `boolean` | `false` | Validate package.json files     |
-| `projen`     | `boolean` | `false` | Run projen synthesis check      |
-| `dagger`     | `boolean` | `false` | Run Dagger checks               |
+| Input                   | Type      | Default                    | Description                             |
+| ----------------------- | --------- | -------------------------- | --------------------------------------- |
+| `eslint`                | `boolean` | `false`                    | Run ESLint                              |
+| `prettier`              | `boolean` | `false`                    | Run Prettier                            |
+| `typescript`            | `boolean` | `false`                    | Run TypeScript type-check               |
+| `vitest`                | `boolean` | `false`                    | Run Vitest tests                        |
+| `beachball`             | `boolean` | `false`                    | Run Beachball change-file check         |
+| `packages`              | `boolean` | `false`                    | Validate package.json files             |
+| `projen`                | `boolean` | `false`                    | Run projen synthesis check              |
+| `dagger`                | `boolean` | `false`                    | Run Dagger checks                       |
+| `posthog-host`          | `string`  | `https://eu.i.posthog.com` | PostHog host for Dagger traces          |
+| `posthog-project-token` | `string`  | `''`                       | PostHog project token for Dagger traces |
 
 With `dagger` set, `dagger check` runs the repository's Dagger workspace in
 place of the Lint and Vitest jobs, at the engine version
 [`actions/dagger-version`](actions/dagger-version/) resolves from its module
 manifests, and the other inputs only pick the fixes the Renovate post-upgrade
 job applies.
+
+Set `posthog-project-token` to a PostHog project token to export the Dagger
+traces to PostHog's OTLP ingestion at `posthog-host`, tagged with the
+repository, ref, commit, and run. Project tokens are public, write-only keys, so
+it is an input rather than a secret.
 
 ### `packages.yml`
 
