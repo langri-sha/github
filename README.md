@@ -36,6 +36,8 @@ Supported inputs:
 | `dagger`                | `boolean` | `false`                    | Run Dagger checks                       |
 | `posthog-host`          | `string`  | `https://eu.i.posthog.com` | PostHog host for Dagger traces          |
 | `posthog-project-token` | `string`  | `''`                       | PostHog project token for Dagger traces |
+| `posthog-project-id`    | `string`  | `''`                       | PostHog project ID for trace links      |
+| `posthog-app-host`      | `string`  | `https://eu.posthog.com`   | PostHog app host for trace links        |
 
 With `dagger` set, `dagger check` runs the repository's Dagger workspace in
 place of the Lint and Vitest jobs, at the engine version
@@ -47,6 +49,38 @@ Set `posthog-project-token` to a PostHog project token to export the Dagger
 traces to PostHog's OTLP ingestion at `posthog-host`, tagged with the
 repository, ref, commit, and run. Project tokens are public, write-only keys, so
 it is an input rather than a secret.
+
+Also set `posthog-project-id` to link the trace: the Dagger job starts the trace
+under a known ID, adds the link to its job summary, and exposes it as the
+`posthog-trace-url` output. To show the link on commits and pull requests,
+publish it as a commit status from a job that may write statuses:
+
+```yaml
+jobs:
+  check:
+    uses: langri-sha/github/.github/workflows/check.yml@v0
+    with:
+      dagger: true
+      posthog-project-token: phc_...
+      posthog-project-id: '12345'
+
+  trace:
+    needs: check
+    if: always() && needs.check.outputs.posthog-trace-url
+    runs-on: ubuntu-latest
+    permissions:
+      statuses: write
+    steps:
+      - uses: langri-sha/github/actions/posthog-trace-status@v0
+        with:
+          url: ${{ needs.check.outputs.posthog-trace-url }}
+```
+
+The `posthog-trace/dagger` status is informational: it is always `success`,
+skipped without a trace, and only warns when it cannot be published, e.g. on
+pull requests from forks. Leave it out of required status checks. It runs in the
+caller's job because a reusable workflow cannot ask for `statuses: write`
+without breaking every caller that does not grant it.
 
 ### `packages.yml`
 
@@ -78,6 +112,7 @@ publishing uses OIDC trusted publishing, so no npm token is needed.
 | [`actions/google-cloud-platform`](actions/google-cloud-platform/)           | Authenticate to Google Cloud             |
 | [`actions/terraform`](actions/terraform/)                                   | Set up Terraform                         |
 | [`actions/dagger-version`](actions/dagger-version/)                         | Resolve the Dagger engine version        |
+| [`actions/posthog-trace-status`](actions/posthog-trace-status/)             | Link a commit to its PostHog trace       |
 
 ## Templates
 
