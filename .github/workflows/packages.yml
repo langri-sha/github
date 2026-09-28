@@ -6,6 +6,9 @@ on:
       environment:
         type: string
         required: false
+      github-releases:
+        type: boolean
+        default: false
       registry-url:
         type: string
         default: https://registry.npmjs.org
@@ -72,3 +75,17 @@ jobs:
             --message "feat(beachball): Publish packages" \
             --new \
             --yes
+
+      # The checkout fetches no tags, so these are the ones beachball created
+      # and pushed for the versions it published.
+      - name: List published tags
+        id: tags
+        if: inputs.github-releases
+        run: echo "tags=$(git tag --list | paste -sd ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub releases
+        if: inputs.github-releases
+        uses: langri-sha/github/actions/github-release@62945bceb2f5a065572e1f4ed992483eb0df3fb3
+        with:
+          tags: ${{ steps.tags.outputs.tags }}
+          token: ${{ steps.app-token.outputs.token }}
