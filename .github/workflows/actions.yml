@@ -7,11 +7,13 @@ on:
     paths:
       - .github/workflows/actions.yml
       - actions/dagger-version/**
+      - actions/github-release/**
       - actions/posthog-trace-status/**
   pull_request:
     paths:
       - .github/workflows/actions.yml
       - actions/dagger-version/**
+      - actions/github-release/**
       - actions/posthog-trace-status/**
 
 jobs:
@@ -57,6 +59,31 @@ jobs:
             echo "::error::Expected $expected_outcome with version '$EXPECTED', got $OUTCOME with version '$ACTUAL'."
             exit 1
           fi
+
+  github-release:
+    name: GitHub release (${{ matrix.case }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - case: no-tags
+          - case: released-tags
+            tags: v0.16.0 v0.17.0
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Create releases
+        uses: ./actions/github-release
+        with:
+          tags: ${{ matrix.tags }}
 
   posthog-trace-status:
     name: PostHog trace status (${{ matrix.case }})
