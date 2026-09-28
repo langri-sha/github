@@ -85,7 +85,7 @@ jobs:
 
       - name: Create GitHub releases
         if: inputs.github-releases
-        uses: langri-sha/github/actions/github-release@62945bceb2f5a065572e1f4ed992483eb0df3fb3
+        uses: langri-sha/github/actions/github-release@v0.18.0
         with:
           tags: ${{ steps.tags.outputs.tags }}
           token: ${{ steps.app-token.outputs.token }}
