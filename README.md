@@ -113,6 +113,19 @@ publishing uses OIDC trusted publishing, so no npm token is needed.
 | [`actions/terraform`](actions/terraform/)                                   | Set up Terraform                         |
 | [`actions/dagger-version`](actions/dagger-version/)                         | Resolve the Dagger engine version        |
 | [`actions/posthog-trace-status`](actions/posthog-trace-status/)             | Link a commit to its PostHog trace       |
+| [`actions/github-release`](actions/github-release/)                         | Create GitHub releases for tags          |
+
+### `actions/github-release`
+
+Creates a GitHub release with generated notes for each given tag that does not
+have one yet, so reruns are safe. The tags must already be pushed, and the token
+needs `contents: write`:
+
+```yaml
+- uses: langri-sha/github/actions/github-release@v0
+  with:
+    tags: v1.0.0 v1.0.1
+```
 
 ## Templates
 

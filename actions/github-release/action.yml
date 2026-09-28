@@ -1,0 +1,42 @@
+name: GitHub release
+description: |-
+  Creates a GitHub release with generated notes for each given tag that does not
+  have one yet, so reruns are safe. The tags must already be pushed.
+
+inputs:
+  tags:
+    description: |-
+      The tags to release, separated by whitespace. Nothing is released when it
+      is empty.
+    required: false
+    default: ''
+  repository:
+    description: The repository to create the releases in.
+    required: false
+    default: ${{ github.repository }}
+  token:
+    description: |-
+      A token with `contents: write` on the repository.
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+
+  steps:
+    - name: Create releases
+      shell: bash
+      env:
+        TAGS: ${{ inputs.tags }}
+        GH_REPO: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        set -euo pipefail
+
+        for tag in $TAGS; do
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "$tag is already released."
+          else
+            gh release create "$tag" --verify-tag --generate-notes
+          fi
+        done
