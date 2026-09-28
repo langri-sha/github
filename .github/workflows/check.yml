@@ -18,6 +18,16 @@ on:
         description: PostHog ingestion host that Dagger traces are exported to.
         type: string
         default: https://eu.i.posthog.com
+      posthog-app-host:
+        description: PostHog app host that Dagger trace links point to.
+        type: string
+        default: https://eu.posthog.com
+      posthog-project-id:
+        description: >-
+          PostHog project ID. When set along with the project token, the Dagger
+          job links its trace and exposes it as the `posthog-trace-url` output.
+        type: string
+        default: ''
       posthog-project-token:
         description: >-
           PostHog project token. When set, Dagger traces are exported to
@@ -48,6 +58,11 @@ on:
         description: Run Vitest checks.
         type: boolean
         default: false
+    outputs:
+      posthog-trace-url:
+        description: >-
+          Link to the Dagger trace in PostHog, or empty when there is none.
+        value: ${{ jobs.dagger.outputs.posthog-trace-url }}
     secrets:
       APP_ID:
         description: GitHub App ID used for the post-upgrade push.
@@ -280,6 +295,8 @@ jobs:
     if: always() && inputs.dagger && needs.commit-upgrade-changes.result != 'success'
     permissions:
       contents: read
+    outputs:
+      posthog-trace-url: ${{ steps.trace.outputs.url }}
 
     steps:
       - name: Checkout
@@ -291,9 +308,30 @@ jobs:
         id: dagger-version
         uses: langri-sha/github/actions/dagger-version@v0.16.0
 
+      # Dagger adopts TRACEPARENT as the parent of its trace, so the trace ID,
+      # and with it the PostHog link, is known before the check runs.
+      - name: Start PostHog trace
+        id: trace
+        if: inputs.posthog-project-token
+        env:
+          PROJECT_ID: ${{ inputs.posthog-project-id }}
+          APP_HOST: ${{ inputs.posthog-app-host }}
+        run: |
+          trace_id=$(openssl rand -hex 16)
+          echo "traceparent=00-${trace_id}-$(openssl rand -hex 8)-01" >> "$GITHUB_OUTPUT"
+
+          if [[ $PROJECT_ID =~ ^[0-9]+$ ]]; then
+            url="${APP_HOST%/}/project/${PROJECT_ID}/tracing?trace=${trace_id}&ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "url=${url}" >> "$GITHUB_OUTPUT"
+            echo "PostHog trace: [\`${trace_id}\`](${url})" >> "$GITHUB_STEP_SUMMARY"
+          elif [[ -n $PROJECT_ID ]]; then
+            echo '::warning::The PostHog project ID must be numeric, so the trace is not linked.'
+          fi
+
       - name: Check
         uses: dagger/dagger-for-github@v8.4.1
         env:
+          TRACEPARENT: ${{ steps.trace.outputs.traceparent }}
           OTEL_EXPORTER_OTLP_TRACES_PROTOCOL: http/protobuf
           OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: ${{ inputs.posthog-project-token && format('{0}/i/v1/traces', inputs.posthog-host) || '' }}
           # Dagger's exporter only reads the generic headers variable and
