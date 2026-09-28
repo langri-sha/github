@@ -103,6 +103,11 @@ jobs:
 token is used for the release Git operations; `secrets: inherit` works too. npm
 publishing uses OIDC trusted publishing, so no npm token is needed.
 
+Set `github-releases: true` to also create a GitHub release for every published
+version, with [`actions/github-release`](actions/github-release/). It releases
+the `<name>_v<version>` tags beachball pushes, so beachball's `gitTags` must be
+on, which is its default.
+
 ## Actions
 
 | Action                                                                      | Description                              |
