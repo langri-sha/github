@@ -88,7 +88,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.16.0
+        uses: langri-sha/github/actions/pnpm@v0.18.0
 
       - name: Apply ESLint fixes
         if: inputs.eslint
@@ -213,7 +213,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.16.0
+        uses: langri-sha/github/actions/pnpm@v0.18.0
 
       - name: ESLint
         if: inputs.eslint
@@ -283,7 +283,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.16.0
+        uses: langri-sha/github/actions/pnpm@v0.18.0
 
       - name: Vitest
         run: pnpm vitest --passWithNoTests
@@ -306,7 +306,7 @@ jobs:
 
       - name: Resolve Dagger version
         id: dagger-version
-        uses: langri-sha/github/actions/dagger-version@v0.16.0
+        uses: langri-sha/github/actions/dagger-version@v0.18.0
 
       # Dagger adopts TRACEPARENT as the parent of its trace, so the trace ID,
       # and with it the PostHog link, is known before the check runs.
