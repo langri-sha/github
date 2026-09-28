@@ -7,10 +7,12 @@ on:
     paths:
       - .github/workflows/actions.yml
       - actions/dagger-version/**
+      - actions/posthog-trace-status/**
   pull_request:
     paths:
       - .github/workflows/actions.yml
       - actions/dagger-version/**
+      - actions/posthog-trace-status/**
 
 jobs:
   dagger-version:
@@ -53,5 +55,49 @@ jobs:
 
           if [[ "$OUTCOME" != "$expected_outcome" || "$ACTUAL" != "$EXPECTED" ]]; then
             echo "::error::Expected $expected_outcome with version '$EXPECTED', got $OUTCOME with version '$ACTUAL'."
+            exit 1
+          fi
+
+  posthog-trace-status:
+    name: PostHog trace status (${{ matrix.case }})
+    runs-on: ubuntu-latest
+    permissions: {}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - case: no-url
+          - case: insecure-url
+            url: http://eu.posthog.com/project/1/tracing?trace=0af7651916cd43dd8448eb211c80319c
+          - case: short-sha
+            url: https://eu.posthog.com/project/1/tracing?trace=0af7651916cd43dd8448eb211c80319c
+            sha: abc1234
+          - case: unauthorized
+            url: https://eu.posthog.com/project/1/tracing?trace=0af7651916cd43dd8448eb211c80319c
+            token: not-a-token
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Every case must be skipped or fail to publish without failing the step,
+      # which would otherwise fail the job.
+      - name: Publish trace status
+        id: status
+        uses: ./actions/posthog-trace-status
+        with:
+          url: ${{ matrix.url }}
+          sha: ${{ matrix.sha || github.sha }}
+          token: ${{ matrix.token || github.token }}
+
+      - name: Check result
+        env:
+          PUBLISHED: ${{ steps.status.outputs.published }}
+        run: |
+          if [[ "$PUBLISHED" != false ]]; then
+            echo "::error::Expected no status to be published, got '$PUBLISHED'."
             exit 1
           fi

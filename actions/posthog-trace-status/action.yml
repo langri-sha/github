@@ -1,0 +1,88 @@
+name: PostHog trace status
+description: |-
+  Publishes a commit status that links a commit to its CI trace in PostHog. The
+  status is informational: it is always `success`, it is skipped when there is
+  no trace link, and failing to publish it only warns, so it never changes a
+  build's result.
+
+  The token needs `statuses: write`. Pull requests from forks get a read-only
+  token, so the status is skipped with a warning there.
+
+inputs:
+  url:
+    description: |-
+      The PostHog trace link, e.g. the `posthog-trace-url` output of the `check`
+      workflow. Nothing is published when it is empty.
+    required: false
+    default: ''
+  context:
+    description: |-
+      The status context. Keep it distinct from every CI result context and
+      required check name, so the link never stands in for a result.
+    required: false
+    default: posthog-trace/dagger
+  description:
+    description: The status description, truncated to 140 characters.
+    required: false
+    default: Dagger trace in PostHog (link only, not a CI result)
+  sha:
+    description: |-
+      The commit to attach the status to. Defaults to the pull request head,
+      which is the commit pull requests show statuses for, or else the pushed
+      commit.
+    required: false
+    default: ${{ github.event.pull_request.head.sha || github.sha }}
+  repository:
+    description: The repository the commit belongs to.
+    required: false
+    default: ${{ github.repository }}
+  token:
+    description: |-
+      A token with `statuses: write` on the repository.
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  published:
+    description: Whether the status was published, `true` or `false`.
+    value: ${{ steps.status.outputs.published }}
+
+runs:
+  using: composite
+
+  steps:
+    - name: Publish trace status
+      id: status
+      shell: bash
+      env:
+        URL: ${{ inputs.url }}
+        CONTEXT: ${{ inputs.context }}
+        DESCRIPTION: ${{ inputs.description }}
+        SHA: ${{ inputs.sha }}
+        REPOSITORY: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        set -uo pipefail
+
+        published=false
+
+        if [[ -z $URL ]]; then
+          echo 'No PostHog trace link, so no trace status is published.'
+        elif [[ ! $URL =~ ^https://[^[:space:]]+$ ]]; then
+          echo '::warning::The PostHog trace link must be an https:// URL, so no trace status is published.'
+        elif [[ ! $SHA =~ ^[0-9a-f]{40}$ ]]; then
+          echo '::warning::The commit SHA is not a full SHA, so no trace status is published.'
+        elif [[ -z $CONTEXT ]]; then
+          echo '::warning::The status context is empty, so no trace status is published.'
+        elif error=$(gh api --method POST "repos/${REPOSITORY}/statuses/${SHA}" \
+          -f state=success \
+          -f context="$CONTEXT" \
+          -f description="${DESCRIPTION:0:140}" \
+          -f target_url="$URL" 2>&1 >/dev/null); then
+          published=true
+          echo "Published the ${CONTEXT} status on ${SHA}."
+        else
+          echo "::warning::Could not publish the ${CONTEXT} status, which needs a token with statuses: write: ${error//$'\n'/ }"
+        fi
+
+        echo "published=${published}" >> "$GITHUB_OUTPUT"
