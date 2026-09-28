@@ -122,14 +122,14 @@ on, which is its default.
 
 ### `actions/github-release`
 
-Creates a GitHub release with generated notes for each given tag that does not
-have one yet, so reruns are safe. The tags must already be pushed, and the token
-needs `contents: write`:
+Creates a GitHub release with generated notes for each tag on `ref`, `HEAD` by
+default, that does not have one yet, so reruns are safe. The tags must already
+be pushed, and the token needs `contents: write`:
 
 ```yaml
 - uses: langri-sha/github/actions/github-release@v0
   with:
-    tags: v1.0.0 v1.0.1
+    ref: origin/main
 ```
 
 ## Templates

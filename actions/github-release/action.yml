@@ -1,15 +1,14 @@
 name: GitHub release
 description: |-
-  Creates a GitHub release with generated notes for each given tag that does not
-  have one yet, so reruns are safe. The tags must already be pushed.
+  Creates a GitHub release with generated notes for each tag on a commit that
+  does not have one yet, so reruns are safe. The tags must already be pushed.
 
 inputs:
-  tags:
+  ref:
     description: |-
-      The tags to release, separated by whitespace. Nothing is released when it
-      is empty.
+      The commit whose tags to release. Nothing is released when it has none.
     required: false
-    default: ''
+    default: HEAD
   repository:
     description: The repository to create the releases in.
     required: false
@@ -27,13 +26,13 @@ runs:
     - name: Create releases
       shell: bash
       env:
-        TAGS: ${{ inputs.tags }}
+        REF: ${{ inputs.ref }}
         GH_REPO: ${{ inputs.repository }}
         GH_TOKEN: ${{ inputs.token }}
       run: |
         set -euo pipefail
 
-        for tag in $TAGS; do
+        for tag in $(git tag --points-at "$REF"); do
           if gh release view "$tag" > /dev/null 2>&1; then
             echo "$tag is already released."
           else
