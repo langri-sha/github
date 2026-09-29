@@ -29,7 +29,7 @@
     "@langri-sha/projen-project": "^0.31.0",
     "@langri-sha/tsconfig": "^1.0.1",
     "husky": "9.1.7",
-    "lint-staged": "17.5.1",
+    "lint-staged": "17.6.0",
     "prettier": "3.9.9",
     "projen": "0.86.5",
     "tsx": "4.23.13",
