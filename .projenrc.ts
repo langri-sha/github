@@ -30,7 +30,7 @@ const project = new Project({
   },
   editorConfig: {},
   husky: {
-    'pre-commit': 'pnpm -q lint-staged',
+    'pre-commit': 'pnpm --silent lint-staged',
   },
   lintStaged: {},
   lintSynthesized: {},
