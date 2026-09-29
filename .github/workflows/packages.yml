@@ -15,6 +15,9 @@ on:
       scope:
         type: string
         required: false
+      tag-template:
+        type: string
+        required: false
     secrets:
       APP_CLIENT_ID:
         description: GitHub App Client ID used for authenticated release Git operations.
@@ -75,6 +78,33 @@ jobs:
             --message "feat(beachball): Publish packages" \
             --new \
             --yes
+
+      - name: Tag published packages
+        if: inputs.tag-template
+        env:
+          REF: origin/${{ github.event.repository.default_branch }}
+          TEMPLATE: ${{ inputs.tag-template }}
+        run: |
+          tags=()
+
+          for file in $(git diff --name-only HEAD "$REF" -- ':(glob)**/package.json'); do
+            manifest=$(git show "$REF:$file")
+            version=$(jq -r .version <<< "$manifest")
+
+            if [[ $(jq -r '.private // false' <<< "$manifest") == true ||
+              $(git show "HEAD:$file" 2> /dev/null | jq -r .version) == "$version" ]]; then
+              continue
+            fi
+
+            tag=${TEMPLATE//\{name\}/$(jq -r .name <<< "$manifest")}
+            tag=${tag//\{version\}/$version}
+            git tag -a "$tag" -m "$tag" "$REF"
+            tags+=("$tag")
+          done
+
+          if (( ${#tags[@]} )); then
+            git push origin "${tags[@]}"
+          fi
 
       - name: Create GitHub releases
         if: inputs.github-releases
