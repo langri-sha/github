@@ -23,7 +23,14 @@
     {
       description: 'Versions owned by @langri-sha/projen-project. Declare the dependency in `.projenrc.ts` to manage it here instead',
       matchManagers: ['npm'],
-      matchPackageNames: ['husky', 'projen', 'tsx', 'typescript'],
+      matchPackageNames: [
+        'husky',
+        'lint-staged',
+        'prettier',
+        'projen',
+        'tsx',
+        'typescript',
+      ],
       enabled: false,
     },
     {
