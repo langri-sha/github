@@ -14,7 +14,7 @@ const project = new Project({
     repository: 'langri-sha/github',
 
     type: 'module',
-    devDeps: ['@langri-sha/lint-staged@0.9.7', '@langri-sha/prettier@0.4.7'],
+    devDeps: ['@langri-sha/lint-staged@0.9.7', '@langri-sha/prettier@0.4.8'],
     peerDependencyOptions: {
       pinnedDevDependency: false,
     },
