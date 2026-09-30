@@ -127,8 +127,9 @@ the tags on the commit beachball pushes, from either source.
 ### `actions/github-release`
 
 Creates a GitHub release with generated notes for each tag on `ref`, `HEAD` by
-default, that does not have one yet, so reruns are safe. The tags must already
-be pushed, and the token needs `contents: write`:
+default, that does not have one yet, so reruns are safe. The message of an
+annotated tag precedes the generated notes, unless it is just the tag name. The
+tags must already be pushed, and the token needs `contents: write`:
 
 ```yaml
 - uses: langri-sha/github/actions/github-release@v0
