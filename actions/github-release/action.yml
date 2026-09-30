@@ -1,7 +1,8 @@
 name: GitHub release
 description: |-
   Creates a GitHub release with generated notes for each tag on a commit that
-  does not have one yet, so reruns are safe. The tags must already be pushed.
+  does not have one yet, so reruns are safe. The message of an annotated tag
+  precedes the generated notes. The tags must already be pushed.
 
 inputs:
   ref:
@@ -36,6 +37,8 @@ runs:
           if gh release view "$tag" > /dev/null 2>&1; then
             echo "$tag is already released."
           else
-            gh release create "$tag" --verify-tag --generate-notes
+            notes=$(git tag --list --format='%(if:equals=tag)%(objecttype)%(then)%(contents)%(end)' "$tag")
+            [[ $notes == "$tag" ]] && notes=
+            gh release create "$tag" --verify-tag --generate-notes --notes "$notes"
           fi
         done

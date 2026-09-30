@@ -91,6 +91,74 @@ jobs:
       - name: Create releases
         uses: ./actions/github-release
 
+  github-release-notes:
+    name: GitHub release notes (${{ matrix.case }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - case: annotated
+            message: |-
+              ### Patches
+
+              - Fix the thing
+            notes: |-
+              ### Patches
+
+              - Fix the thing
+          - case: tag-name
+            message: v0.0.0-test
+          - case: lightweight
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Stub gh
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          cat > "$RUNNER_TEMP/bin/gh" << 'EOF'
+          #!/usr/bin/env bash
+          [[ $2 == view ]] && exit 1
+          while (( $# )); do
+            [[ $1 == --notes ]] && printf '%s' "$2" > "$RUNNER_TEMP/notes"
+            shift
+          done
+          EOF
+          chmod +x "$RUNNER_TEMP/bin/gh"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      - name: Tag HEAD
+        env:
+          MESSAGE: ${{ matrix.message }}
+        run: |
+          if [[ -n $MESSAGE ]]; then
+            git -c user.name=test -c user.email=test@example.com \
+              tag -a --cleanup=whitespace -m "$MESSAGE" v0.0.0-test
+          else
+            git tag v0.0.0-test
+          fi
+
+      - name: Create releases
+        uses: ./actions/github-release
+
+      - name: Check notes
+        env:
+          EXPECTED: ${{ matrix.notes }}
+        run: |
+          actual=$(cat "$RUNNER_TEMP/notes")
+
+          if [[ "$actual" != "$EXPECTED" ]]; then
+            echo "::error::Expected notes '$EXPECTED', got '$actual'."
+            exit 1
+          fi
+
   posthog-trace-status:
     name: PostHog trace status (${{ matrix.case }})
     runs-on: ubuntu-latest
