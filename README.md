@@ -106,11 +106,14 @@ publishing uses OIDC trusted publishing, so no npm token is needed.
 Beachball tags each published version as `<name>_v<version>` when its `gitTags`
 is on, which is its default. To name the tags yourself, turn `gitTags` off and
 set `tag-template`, e.g. `v{version}` for a single package; `{name}` and
-`{version}` are replaced with each published package's name and version.
+`{version}` are replaced with each published package's name and version. These
+tags carry the version's section of the package's `CHANGELOG.md` as their
+message.
 
 Set `github-releases: true` to also create a GitHub release for every published
 version, with [`actions/github-release`](actions/github-release/). It releases
-the tags on the commit beachball pushes, from either source.
+the tags on the commit beachball pushes, from either source, and opens the notes
+of those from `tag-template` with their changelog entries.
 
 ## Actions
 
