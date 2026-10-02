@@ -343,8 +343,8 @@ jobs:
               --arg runId "$RUN_ID" \
               --arg runAttempt "$RUN_ATTEMPT" \
               '[
+                "view=spans",
                 "dateRange=\({date_from: $from, date_to: $to} | tojson | @uri)",
-                "serviceNames=\(["dagger-cli"] | tojson | @uri)",
                 "filterGroup=\({
                   type: "AND",
                   values: [{
