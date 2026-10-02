@@ -308,30 +308,14 @@ jobs:
         id: dagger-version
         uses: langri-sha/github/actions/dagger-version@v0.21.0
 
-      # Dagger adopts TRACEPARENT as the parent of its trace, so the trace ID,
-      # and with it the PostHog link, is known before the check runs.
-      - name: Start PostHog trace
-        id: trace
+      - name: Record start time
+        id: start
         if: inputs.posthog-project-token
-        env:
-          PROJECT_ID: ${{ inputs.posthog-project-id }}
-          APP_HOST: ${{ inputs.posthog-app-host }}
-        run: |
-          trace_id=$(openssl rand -hex 16)
-          echo "traceparent=00-${trace_id}-$(openssl rand -hex 8)-01" >> "$GITHUB_OUTPUT"
-
-          if [[ $PROJECT_ID =~ ^[0-9]+$ ]]; then
-            url="${APP_HOST%/}/project/${PROJECT_ID}/tracing?trace=${trace_id}&ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "url=${url}" >> "$GITHUB_OUTPUT"
-            echo "PostHog trace: [\`${trace_id}\`](${url})" >> "$GITHUB_STEP_SUMMARY"
-          elif [[ -n $PROJECT_ID ]]; then
-            echo '::warning::The PostHog project ID must be numeric, so the trace is not linked.'
-          fi
+        run: echo "time=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
 
       - name: Check
         uses: dagger/dagger-for-github@v8.4.1
         env:
-          TRACEPARENT: ${{ steps.trace.outputs.traceparent }}
           OTEL_EXPORTER_OTLP_TRACES_PROTOCOL: http/protobuf
           OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: ${{ inputs.posthog-project-token && format('{0}/i/v1/traces', inputs.posthog-host) || '' }}
           # Dagger's exporter only reads the generic headers variable and
@@ -341,3 +325,28 @@ jobs:
         with:
           version: ${{ steps.dagger-version.outputs.version }}
           verb: check
+
+      # PostHog's attribute filters fail server-side, so the link matches the
+      # root span of the Dagger run by its built-in fields and the job's time
+      # window. It lists every run that overlaps this one.
+      - name: Link PostHog trace
+        id: trace
+        if: always() && inputs.posthog-project-token && steps.start.outputs.time
+        env:
+          PROJECT_ID: ${{ inputs.posthog-project-id }}
+          APP_HOST: ${{ inputs.posthog-app-host }}
+          STARTED: ${{ steps.start.outputs.time }}
+        run: |
+          if [[ $PROJECT_ID =~ ^[0-9]+$ ]]; then
+            date_range=$(jq -nc --arg from "$STARTED" --arg to "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '{date_from: $from, date_to: $to}')
+            filter_group='{"type":"AND","values":[{"type":"AND","values":[{"key":"name","type":"span","operator":"exact","value":"dagger --progress plain check"}]}]}'
+            query=$(jq -rn \
+              --arg dateRange "$date_range" \
+              --arg filterGroup "$filter_group" \
+              '["view=spans", "serviceNames=\(["dagger-cli"] | tojson | @uri)", "dateRange=\($dateRange | @uri)", "filterGroup=\($filterGroup | @uri)"] | join("&")')
+            url="${APP_HOST%/}/project/${PROJECT_ID}/tracing?${query}"
+            echo "url=${url}" >> "$GITHUB_OUTPUT"
+            echo "[Dagger trace in PostHog](${url})" >> "$GITHUB_STEP_SUMMARY"
+          elif [[ -n $PROJECT_ID ]]; then
+            echo '::warning::The PostHog project ID must be numeric, so the trace is not linked.'
+          fi
