@@ -24,7 +24,7 @@ inputs:
   description:
     description: The status description, truncated to 140 characters.
     required: false
-    default: Dagger trace in PostHog (link only, not a CI result)
+    default: Dagger trace in PostHog
   sha:
     description: |-
       The commit to attach the status to. Defaults to the pull request head,
