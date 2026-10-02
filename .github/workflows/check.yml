@@ -326,9 +326,6 @@ jobs:
           version: ${{ steps.dagger-version.outputs.version }}
           verb: check
 
-      # PostHog's attribute filters fail server-side, so the link matches the
-      # root span of the Dagger run by its built-in fields and the job's time
-      # window. It lists every run that overlaps this one.
       - name: Link PostHog trace
         id: trace
         if: always() && inputs.posthog-project-token && steps.start.outputs.time
@@ -336,14 +333,29 @@ jobs:
           PROJECT_ID: ${{ inputs.posthog-project-id }}
           APP_HOST: ${{ inputs.posthog-app-host }}
           STARTED: ${{ steps.start.outputs.time }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           if [[ $PROJECT_ID =~ ^[0-9]+$ ]]; then
-            date_range=$(jq -nc --arg from "$STARTED" --arg to "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '{date_from: $from, date_to: $to}')
-            filter_group='{"type":"AND","values":[{"type":"AND","values":[{"key":"name","type":"span","operator":"exact","value":"dagger --progress plain check"}]}]}'
             query=$(jq -rn \
-              --arg dateRange "$date_range" \
-              --arg filterGroup "$filter_group" \
-              '["view=spans", "serviceNames=\(["dagger-cli"] | tojson | @uri)", "dateRange=\($dateRange | @uri)", "filterGroup=\($filterGroup | @uri)"] | join("&")')
+              --arg from "$STARTED" \
+              --arg to "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              --arg runId "$RUN_ID" \
+              --arg runAttempt "$RUN_ATTEMPT" \
+              '[
+                "dateRange=\({date_from: $from, date_to: $to} | tojson | @uri)",
+                "serviceNames=\(["dagger-cli"] | tojson | @uri)",
+                "filterGroup=\({
+                  type: "AND",
+                  values: [{
+                    type: "AND",
+                    values: [
+                      {key: "github.run_id", value: [$runId]},
+                      {key: "github.run_attempt", value: [$runAttempt]}
+                    ] | map(. + {operator: "exact", type: "span_resource_attribute"})
+                  }]
+                } | tojson | @uri)"
+              ] | join("&")')
             url="${APP_HOST%/}/project/${PROJECT_ID}/tracing?${query}"
             echo "url=${url}" >> "$GITHUB_OUTPUT"
             echo "[Dagger trace in PostHog](${url})" >> "$GITHUB_STEP_SUMMARY"
