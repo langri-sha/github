@@ -50,10 +50,11 @@ traces to PostHog's OTLP ingestion at `posthog-host`, tagged with the
 repository, ref, commit, and run. Project tokens are public, write-only keys, so
 it is an input rather than a secret.
 
-Also set `posthog-project-id` to link the trace: the Dagger job starts the trace
-under a known ID, adds the link to its job summary, and exposes it as the
-`posthog-trace-url` output. To show the link on commits and pull requests,
-publish it as a commit status from a job that may write statuses:
+Also set `posthog-project-id` to link the trace: the Dagger job adds a link to
+its job summary and exposes it as the `posthog-trace-url` output. The link lists
+the Dagger runs in PostHog within the job's time window, so it also shows runs
+that overlap this one. To show the link on commits and pull requests, publish it
+as a commit status from a job that may write statuses:
 
 ```yaml
 jobs:
