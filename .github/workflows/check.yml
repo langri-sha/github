@@ -10,10 +10,17 @@ on:
       dagger:
         description: >-
           Run `dagger check` in place of the Lint and Vitest jobs, with the
-          engine version the Dagger modules pin. The other inputs then only pick
-          the post-upgrade fixes.
+          engine version the Dagger modules pin, or `dagger-version`. The other
+          inputs then only pick the post-upgrade fixes.
         type: boolean
         default: false
+      dagger-version:
+        description: >-
+          Dagger engine version to run, e.g. `v1.0.0-beta.15`, in place of the
+          one resolved from the module manifests. Required when the workspace
+          has no module of its own and installs them all from git refs.
+        type: string
+        default: ''
       posthog-host:
         description: PostHog ingestion host that Dagger traces are exported to.
         type: string
@@ -306,6 +313,7 @@ jobs:
 
       - name: Resolve Dagger version
         id: dagger-version
+        if: ${{ !inputs.dagger-version }}
         uses: langri-sha/github/actions/dagger-version@v0.23.0
 
       - name: Record start time
@@ -323,7 +331,7 @@ jobs:
           OTEL_EXPORTER_OTLP_HEADERS: ${{ inputs.posthog-project-token && format('Authorization=Bearer {0}', inputs.posthog-project-token) || '' }}
           OTEL_RESOURCE_ATTRIBUTES: github.repository=${{ github.repository }},github.ref=${{ github.ref }},github.sha=${{ github.sha }},github.run_id=${{ github.run_id }},github.run_attempt=${{ github.run_attempt }}
         with:
-          version: ${{ steps.dagger-version.outputs.version }}
+          version: ${{ inputs.dagger-version || steps.dagger-version.outputs.version }}
           verb: check
 
       - name: Link PostHog trace

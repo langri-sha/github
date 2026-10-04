@@ -34,6 +34,7 @@ Supported inputs:
 | `packages`              | `boolean` | `false`                    | Validate package.json files             |
 | `projen`                | `boolean` | `false`                    | Run projen synthesis check              |
 | `dagger`                | `boolean` | `false`                    | Run Dagger checks                       |
+| `dagger-version`        | `string`  | `''`                       | Dagger engine version to run            |
 | `posthog-host`          | `string`  | `https://eu.i.posthog.com` | PostHog host for Dagger traces          |
 | `posthog-project-token` | `string`  | `''`                       | PostHog project token for Dagger traces |
 | `posthog-project-id`    | `string`  | `''`                       | PostHog project ID for trace links      |
@@ -43,7 +44,8 @@ With `dagger` set, `dagger check` runs the repository's Dagger workspace in
 place of the Lint and Vitest jobs, at the engine version
 [`actions/dagger-version`](actions/dagger-version/) resolves from its module
 manifests, and the other inputs only pick the fixes the Renovate post-upgrade
-job applies.
+job applies. A workspace that installs every module from a git ref has no
+manifests to resolve from, so it sets `dagger-version`, e.g. `v1.0.0-beta.15`.
 
 Set `posthog-project-token` to a PostHog project token to export the Dagger
 traces to PostHog's OTLP ingestion at `posthog-host`, tagged with the
