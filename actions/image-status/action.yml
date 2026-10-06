@@ -1,0 +1,138 @@
+name: Image status
+description: |-
+  Publishes a commit status with the size of a container image and, once it is
+  published, its address. The status is informational: it is always `success`,
+  and failing to measure the image or to publish the status only warns, so it
+  never changes a build's result.
+
+  The size is the compressed size of the image's filesystem, measured from the
+  local image, so it reads the same before and after the image is pushed and
+  whichever image store the Docker daemon uses. It matches what a registry
+  stores when the image's layers don't overwrite each other's files.
+
+  The token needs `statuses: write`. Pull requests from forks get a read-only
+  token, so the status is skipped with a warning there.
+
+inputs:
+  image:
+    description: |-
+      The local image to measure, e.g. the tag passed to `docker build`. It is
+      never pulled.
+    required: true
+  address:
+    description: |-
+      Where the image was published, e.g. `ghcr.io/owner/app:main`, shown before
+      its size and shortened to fit the status. Leave it empty when the image is
+      only built.
+    required: false
+    default: ''
+  context:
+    description: |-
+      The status context. Defaults to `image/<name>`, where `<name>` is the
+      image's name without its registry, path, tag, or digest. Use the same
+      context where the image is built and where it is published, so the
+      published status replaces the built one.
+    required: false
+    default: ''
+  url:
+    description: The status link. Defaults to the workflow run.
+    required: false
+    default:
+      ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{
+      github.run_id }}
+  sha:
+    description: |-
+      The commit to attach the status to. Defaults to the pull request head,
+      which is the commit pull requests show statuses for, or else the pushed
+      commit.
+    required: false
+    default: ${{ github.event.pull_request.head.sha || github.sha }}
+  repository:
+    description: The repository the commit belongs to.
+    required: false
+    default: ${{ github.repository }}
+  token:
+    description: |-
+      A token with `statuses: write` on the repository.
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  size:
+    description: |-
+      The compressed size of the image in bytes, empty when it could not be
+      measured.
+    value: ${{ steps.status.outputs.size }}
+  published:
+    description: Whether the status was published, `true` or `false`.
+    value: ${{ steps.status.outputs.published }}
+
+runs:
+  using: composite
+
+  steps:
+    - name: Publish image status
+      id: status
+      shell: bash
+      env:
+        IMAGE: ${{ inputs.image }}
+        ADDRESS: ${{ inputs.address }}
+        CONTEXT: ${{ inputs.context }}
+        URL: ${{ inputs.url }}
+        SHA: ${{ inputs.sha }}
+        REPOSITORY: ${{ inputs.repository }}
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        set +e -uo pipefail
+
+        measure() {
+          local container status
+
+          container=$(docker create --pull never "$IMAGE" measure) || return
+          docker export "$container" | gzip | wc --bytes
+          status=$?
+          docker rm "$container" > /dev/null
+
+          return "$status"
+        }
+
+        published=false
+
+        if [[ -z $CONTEXT ]]; then
+          name=${IMAGE##*/}
+          CONTEXT=image/${name%%[:@]*}
+        fi
+
+        if ! size=$(measure); then
+          size=
+          echo "::warning::Could not measure ${IMAGE}, so no image status is published."
+        elif [[ ! $SHA =~ ^[0-9a-f]{40}$ ]]; then
+          echo '::warning::The commit SHA is not a full SHA, so no image status is published.'
+        else
+          description=$(awk '{ printf "%.2f MiB", $1 / 1048576 }' <<< "$size")
+
+          if [[ -n $ADDRESS ]]; then
+            suffix=" (${description})"
+            limit=$((140 - ${#suffix}))
+
+            if (( ${#ADDRESS} > limit )); then
+              ADDRESS="${ADDRESS:0:limit - 3}..."
+            fi
+
+            description=${ADDRESS}${suffix}
+          fi
+
+          if error=$(gh api --method POST "repos/${REPOSITORY}/statuses/${SHA}" \
+            -f state=success \
+            -f context="$CONTEXT" \
+            -f description="$description" \
+            -f target_url="$URL" 2>&1 > /dev/null); then
+            published=true
+            echo "Published the ${CONTEXT} status on ${SHA}: ${description}"
+          else
+            echo "::warning::Could not publish the ${CONTEXT} status, which needs a token with statuses: write: ${error//$'\n'/ }"
+          fi
+        fi
+
+        echo "size=${size}" >> "$GITHUB_OUTPUT"
+        echo "published=${published}" >> "$GITHUB_OUTPUT"
