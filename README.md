@@ -120,15 +120,16 @@ of those from `tag-template` with their changelog entries.
 
 ## Actions
 
-| Action                                                                      | Description                              |
-| --------------------------------------------------------------------------- | ---------------------------------------- |
-| [`actions/pnpm`](actions/pnpm/)                                             | Set up pnpm with caching                 |
-| [`actions/github-action-bot-git-user`](actions/github-action-bot-git-user/) | Configure git user as GitHub Actions bot |
-| [`actions/google-cloud-platform`](actions/google-cloud-platform/)           | Authenticate to Google Cloud             |
-| [`actions/terraform`](actions/terraform/)                                   | Set up Terraform                         |
-| [`actions/dagger-version`](actions/dagger-version/)                         | Resolve the Dagger engine version        |
-| [`actions/posthog-trace-status`](actions/posthog-trace-status/)             | Link a commit to its PostHog trace       |
-| [`actions/github-release`](actions/github-release/)                         | Create GitHub releases for tags          |
+| Action                                                                      | Description                                      |
+| --------------------------------------------------------------------------- | ------------------------------------------------ |
+| [`actions/pnpm`](actions/pnpm/)                                             | Set up pnpm with caching                         |
+| [`actions/github-action-bot-git-user`](actions/github-action-bot-git-user/) | Configure git user as GitHub Actions bot         |
+| [`actions/google-cloud-platform`](actions/google-cloud-platform/)           | Authenticate to Google Cloud                     |
+| [`actions/terraform`](actions/terraform/)                                   | Set up Terraform                                 |
+| [`actions/dagger-version`](actions/dagger-version/)                         | Resolve the Dagger engine version                |
+| [`actions/posthog-trace-status`](actions/posthog-trace-status/)             | Link a commit to its PostHog trace               |
+| [`actions/github-release`](actions/github-release/)                         | Create GitHub releases for tags                  |
+| [`actions/image-status`](actions/image-status/)                             | Report an image's size and address on its commit |
 
 ### `actions/github-release`
 
@@ -142,6 +143,53 @@ tags must already be pushed, and the token needs `contents: write`:
   with:
     ref: origin/main
 ```
+
+### `actions/image-status`
+
+Publishes an `image/<name>` commit status with the compressed size of a local
+image and, once published, its address, e.g.
+`ghcr.io/owner/app:main (87.00 MiB)`. Run it where the image is built, so pull
+requests show its size, and again where it is pushed, which replaces the status
+with one that names the address:
+
+```yaml
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build --tag app .
+      - uses: langri-sha/github/actions/image-status@v0
+        with:
+          image: app
+
+  publish:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          docker build --tag ghcr.io/owner/app:main .
+          docker push ghcr.io/owner/app:main
+      - uses: langri-sha/github/actions/image-status@v0
+        with:
+          image: ghcr.io/owner/app:main
+          address: ghcr.io/owner/app:main
+```
+
+The size is that of the image's filesystem, exported and gzipped, so it reads
+the same before and after the push and on any Docker image store. It matches
+what the registry stores unless the image's layers overwrite each other's files.
+Like `posthog-trace-status`, the status is always `success`, only warns when it
+cannot be published, and stays out of required status checks.
 
 ## Templates
 

@@ -8,12 +8,14 @@ on:
       - .github/workflows/actions.yml
       - actions/dagger-version/**
       - actions/github-release/**
+      - actions/image-status/**
       - actions/posthog-trace-status/**
   pull_request:
     paths:
       - .github/workflows/actions.yml
       - actions/dagger-version/**
       - actions/github-release/**
+      - actions/image-status/**
       - actions/posthog-trace-status/**
 
 jobs:
@@ -157,6 +159,101 @@ jobs:
           if [[ "$actual" != "$EXPECTED" ]]; then
             echo "::error::Expected notes '$EXPECTED', got '$actual'."
             exit 1
+          fi
+
+  image-status:
+    name: Image status (${{ matrix.case }})
+    runs-on: ubuntu-latest
+    permissions: {}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - case: built
+            description: 1.00 MiB
+          - case: published
+            image: ghcr.io/langri-sha/image-status-test:main
+            address: ghcr.io/langri-sha/image-status-test:main
+            description: ghcr.io/langri-sha/image-status-test:main (1.00 MiB)
+          - case: long-address
+            address: us-docker.pkg.dev/a-rather-long-google-cloud-project-id/a-rather-long-repository-name/some-application-image:0123456789abcdef0123456789abcdef01234567
+            description: us-docker.pkg.dev/a-rather-long-google-cloud-project-id/a-rather-long-repository-name/some-application-image:0123456789abcdef0... (1.00 MiB)
+          - case: missing-image
+            image: image-status-missing
+          - case: short-sha
+            sha: abc1234
+          - case: unauthorized
+            token: not-a-token
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build image
+        run: |
+          mkdir "$RUNNER_TEMP/image"
+          head --bytes 1048576 /dev/urandom > "$RUNNER_TEMP/image/data"
+          printf 'FROM scratch\nCOPY data /data\n' > "$RUNNER_TEMP/image/Dockerfile"
+
+          docker build \
+            --tag ghcr.io/langri-sha/image-status-test:main \
+            --tag image-status-test \
+            "$RUNNER_TEMP/image"
+
+      - name: Stub gh
+        if: matrix.case != 'unauthorized'
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          cat > "$RUNNER_TEMP/bin/gh" << 'EOF'
+          #!/usr/bin/env bash
+          while (( $# )); do
+            [[ $1 == -f ]] && printf '%s\n' "$2" >> "$RUNNER_TEMP/fields"
+            shift
+          done
+          EOF
+          chmod +x "$RUNNER_TEMP/bin/gh"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+
+      # Every case must publish or fail to without failing the step, which
+      # would otherwise fail the job.
+      - name: Publish image status
+        id: status
+        uses: ./actions/image-status
+        with:
+          image: ${{ matrix.image || 'image-status-test' }}
+          address: ${{ matrix.address }}
+          sha: ${{ matrix.sha || github.sha }}
+          token: ${{ matrix.token || github.token }}
+
+      - name: Check result
+        env:
+          CASE: ${{ matrix.case }}
+          DESCRIPTION: ${{ matrix.description }}
+          PUBLISHED: ${{ steps.status.outputs.published }}
+          SIZE: ${{ steps.status.outputs.size }}
+        run: |
+          expected=$([[ -n $DESCRIPTION ]] && echo true || echo false)
+
+          if [[ "$PUBLISHED" != "$expected" ]]; then
+            echo "::error::Expected published to be $expected, got '$PUBLISHED'."
+            exit 1
+          fi
+
+          if [[ $CASE == missing-image && -n $SIZE ]] || [[ $CASE != missing-image && -z $SIZE ]]; then
+            echo "::error::Unexpected size '$SIZE'."
+            exit 1
+          fi
+
+          if [[ -n $DESCRIPTION ]]; then
+            for field in context=image/image-status-test "description=$DESCRIPTION"; do
+              if ! grep --quiet --fixed-strings --line-regexp "$field" "$RUNNER_TEMP/fields"; then
+                echo "::error::Expected '$field', got: $(paste -sd ' ' "$RUNNER_TEMP/fields")"
+                exit 1
+              fi
+            done
           fi
 
   posthog-trace-status:
