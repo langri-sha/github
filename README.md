@@ -9,7 +9,7 @@ Reusable workflows and composite actions for GitHub Actions.
 
 ### `check.yml`
 
-Reusable lint, type-check, and test workflow. Call it from any repo:
+Lints, type-checks and tests a repository. Turn on the checks that apply:
 
 ```yaml
 jobs:
@@ -22,39 +22,31 @@ jobs:
       vitest: true
 ```
 
-Supported inputs:
+| Input                   | Default                    | Description                                      |
+| ----------------------- | -------------------------- | ------------------------------------------------ |
+| `eslint`                | `false`                    | Run ESLint                                       |
+| `prettier`              | `false`                    | Run Prettier                                     |
+| `typescript`            | `false`                    | Type-check with TypeScript                       |
+| `vitest`                | `false`                    | Run Vitest tests                                 |
+| `beachball`             | `false`                    | Check for Beachball change files                 |
+| `packages`              | `false`                    | Validate `package.json` files                    |
+| `projen`                | `false`                    | Check that projen's output is up to date         |
+| `dagger`                | `false`                    | Run the repository's Dagger checks instead       |
+| `dagger-version`        | `''`                       | Dagger version, if it can't be read from modules |
+| `posthog-project-token` | `''`                       | Send Dagger traces to PostHog                    |
+| `posthog-project-id`    | `''`                       | Link each run to its trace in PostHog            |
+| `posthog-host`          | `https://eu.i.posthog.com` | PostHog host traces are sent to                  |
+| `posthog-app-host`      | `https://eu.posthog.com`   | PostHog app host trace links point to            |
 
-| Input                   | Type      | Default                    | Description                             |
-| ----------------------- | --------- | -------------------------- | --------------------------------------- |
-| `eslint`                | `boolean` | `false`                    | Run ESLint                              |
-| `prettier`              | `boolean` | `false`                    | Run Prettier                            |
-| `typescript`            | `boolean` | `false`                    | Run TypeScript type-check               |
-| `vitest`                | `boolean` | `false`                    | Run Vitest tests                        |
-| `beachball`             | `boolean` | `false`                    | Run Beachball change-file check         |
-| `packages`              | `boolean` | `false`                    | Validate package.json files             |
-| `projen`                | `boolean` | `false`                    | Run projen synthesis check              |
-| `dagger`                | `boolean` | `false`                    | Run Dagger checks                       |
-| `dagger-version`        | `string`  | `''`                       | Dagger engine version to run            |
-| `posthog-host`          | `string`  | `https://eu.i.posthog.com` | PostHog host for Dagger traces          |
-| `posthog-project-token` | `string`  | `''`                       | PostHog project token for Dagger traces |
-| `posthog-project-id`    | `string`  | `''`                       | PostHog project ID for trace links      |
-| `posthog-app-host`      | `string`  | `https://eu.posthog.com`   | PostHog app host for trace links        |
-
-With `dagger` set, `dagger check` runs the repository's Dagger workspace in
-place of the Lint and Vitest jobs, at the engine version
-[`actions/dagger-version`](actions/dagger-version/) resolves from its module
-manifests, and the other inputs only pick the fixes the Renovate post-upgrade
-job applies. A workspace that installs every module from a git ref has no
-manifests to resolve from, so it sets `dagger-version`, e.g. `v1.0.0-beta.15`.
-
-To export the Dagger traces to PostHog and link them from commits and pull
-requests, see [`actions/posthog-trace-status`](actions/posthog-trace-status/).
+With `dagger` on, `dagger check` replaces the lint and test jobs, and the other
+check inputs only choose which fixes the Renovate post-upgrade job applies. To
+show the trace link on commits and pull requests, see
+[`actions/posthog-trace-status`](actions/posthog-trace-status/).
 
 ### `packages.yml`
 
-Publishes packages to npm via
-[Beachball](https://microsoft.github.io/beachball/). Called after merging to
-main:
+Publishes packages to npm with
+[Beachball](https://microsoft.github.io/beachball/) after merging to `main`:
 
 ```yaml
 jobs:
@@ -67,21 +59,13 @@ jobs:
       APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
 ```
 
-`APP_CLIENT_ID` and `APP_PRIVATE_KEY` belong to a GitHub App installation whose
-token is used for the release Git operations; `secrets: inherit` works too. npm
-publishing uses OIDC trusted publishing, so no npm token is needed.
+npm publishing uses trusted publishing, so no npm token is needed. The GitHub
+App pushes the release commit and tags; `secrets: inherit` works too.
 
-Beachball tags each published version as `<name>_v<version>` when its `gitTags`
-is on, which is its default. To name the tags yourself, turn `gitTags` off and
-set `tag-template`, e.g. `v{version}` for a single package; `{name}` and
-`{version}` are replaced with each published package's name and version. These
-tags carry the version's section of the package's `CHANGELOG.md` as their
-message.
-
-Set `github-releases: true` to also create a GitHub release for every published
-version, with [`actions/github-release`](actions/github-release/). It releases
-the tags on the commit beachball pushes, from either source, and opens the notes
-of those from `tag-template` with their changelog entries.
+Beachball tags each version as `<name>_v<version>`. To name tags yourself, turn
+off Beachball's `gitTags` and set `tag-template`, e.g. `v{version}`. Set
+`github-releases: true` to also create a GitHub release for each published
+version.
 
 ## Actions
 
@@ -95,24 +79,10 @@ of those from `tag-template` with their changelog entries.
 | [`actions/posthog-trace-status`](actions/posthog-trace-status/)             | Link a commit to its PostHog trace       |
 | [`actions/github-release`](actions/github-release/)                         | Create GitHub releases for tags          |
 
-### `actions/github-release`
+## Contributing
 
-Creates a GitHub release with generated notes for each tag on `ref`, `HEAD` by
-default, that does not have one yet, so reruns are safe. The message of an
-annotated tag precedes the generated notes, unless it is just the tag name. The
-tags must already be pushed, and the token needs `contents: write`:
-
-```yaml
-- uses: langri-sha/github/actions/github-release@v0
-  with:
-    ref: origin/main
-```
-
-## Templates
-
-- [README template](docs/README-template.md) — standard layout for all repos
-- [CONTRIBUTING](CONTRIBUTING.md) — commit conventions, changelog, and release
-  process
+See [CONTRIBUTING.md](CONTRIBUTING.md) for commit conventions, changelogs and
+the release process.
 
 ## License
 
