@@ -47,43 +47,8 @@ manifests, and the other inputs only pick the fixes the Renovate post-upgrade
 job applies. A workspace that installs every module from a git ref has no
 manifests to resolve from, so it sets `dagger-version`, e.g. `v1.0.0-beta.15`.
 
-Set `posthog-project-token` to a PostHog project token to export the Dagger
-traces to PostHog's OTLP ingestion at `posthog-host`, tagged with the
-repository, ref, commit, and run. Project tokens are public, write-only keys, so
-it is an input rather than a secret.
-
-Also set `posthog-project-id` to link the trace: the Dagger job adds a link to
-its job summary and exposes it as the `posthog-trace-url` output. The link
-filters PostHog's tracing view by the run and attempt. To show the link on
-commits and pull requests, publish it as a commit status from a job that may
-write statuses:
-
-```yaml
-jobs:
-  check:
-    uses: langri-sha/github/.github/workflows/check.yml@v0
-    with:
-      dagger: true
-      posthog-project-token: phc_...
-      posthog-project-id: '12345'
-
-  trace:
-    needs: check
-    if: always() && needs.check.outputs.posthog-trace-url
-    runs-on: ubuntu-latest
-    permissions:
-      statuses: write
-    steps:
-      - uses: langri-sha/github/actions/posthog-trace-status@v0
-        with:
-          url: ${{ needs.check.outputs.posthog-trace-url }}
-```
-
-The `posthog-trace/dagger` status is informational: it is always `success`,
-skipped without a trace, and only warns when it cannot be published, e.g. on
-pull requests from forks. Leave it out of required status checks. It runs in the
-caller's job because a reusable workflow cannot ask for `statuses: write`
-without breaking every caller that does not grant it.
+To export the Dagger traces to PostHog and link them from commits and pull
+requests, see [`actions/posthog-trace-status`](actions/posthog-trace-status/).
 
 ### `packages.yml`
 
