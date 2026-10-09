@@ -40,7 +40,7 @@ Changelogs are maintained by
 | Open PR             | Author            | Regular branch → PR                |
 | Pass CI             | CI                | `check.yml` must be green          |
 | Include change file | Author            | `pnpm beachball change`            |
-| Merge               | Author / reviewer | Squash or merge commit             |
+| Merge               | Author / reviewer | Rebase merge                       |
 | Publish             | CI                | `packages.yml` runs on `main` push |
 
 ## Docs Platform
