@@ -81,8 +81,8 @@ version.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for commit conventions, changelogs and
-the release process.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for commit conventions, changelogs, the
+release process and CI setup.
 
 ## License
 
