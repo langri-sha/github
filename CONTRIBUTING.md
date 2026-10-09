@@ -45,26 +45,41 @@ Changelogs are maintained by
 
 ## CI
 
-All repos call the reusable workflow from
-[`langri-sha/github`](https://github.com/langri-sha/github):
+Repositories run the reusable
+[`check.yml`](https://github.com/langri-sha/github/blob/main/.github/workflows/check.yml)
+from [`langri-sha/github`](https://github.com/langri-sha/github) through a
+`.github/workflows/workspace.yml` workflow named "Workspace". It is written by
+hand; projen does not generate it.
 
 ```yaml
-# .github/workflows/ci.yml
-name: CI
+# .github/workflows/workspace.yml
+name: Workspace
+
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
 
 jobs:
   check:
-    uses: langri-sha/github/.github/workflows/check.yml@v0
+    permissions:
+      contents: write
+    uses: langri-sha/github/.github/workflows/check.yml@v0.24.0
     with:
+      beachball: true
       eslint: true
       prettier: true
+      projen: true
       typescript: true
-      vitest: true
-      beachball: true
+    secrets: inherit
 ```
+
+- Pin `check.yml` to a released version; Renovate keeps the pin current.
+- `permissions: contents: write` is required. The called Renovate post-upgrade
+  job needs it, and a called job can't exceed its caller's permissions, so
+  without it the run fails at startup.
+- Enable only the checks a repository uses. Set `dagger: true` to run
+  `dagger check` in place of the lint and Vitest jobs.
 
 Nothing merges with a red CI.
