@@ -4,31 +4,13 @@ Thank you for contributing to Langri-Sha open source projects.
 
 ## Commit Conventions
 
-All commits follow [Conventional Commits](https://www.conventionalcommits.org/):
+Write each commit subject as a plain imperative sentence of around 50
+characters, without a type prefix or a trailing period: "Add the release
+workflow", not `feat: add release workflow`. Add a body only when the reason for
+the change isn't clear from the diff, and put issue references there
+(`Closes #123`).
 
-```
-<type>(<scope>): <description>
-
-[optional body]
-
-[optional footer]
-```
-
-**Types:**
-
-| Type       | When to use                     |
-| ---------- | ------------------------------- |
-| `feat`     | New user-facing feature         |
-| `fix`      | Bug fix                         |
-| `docs`     | Documentation only              |
-| `refactor` | Code change without feature/fix |
-| `test`     | Tests only                      |
-| `chore`    | Tooling, deps, CI               |
-| `perf`     | Performance improvement         |
-
-**Breaking changes:** add `!` after the type (e.g.
-`feat!: drop Node 18 support`) and describe the break in the footer with
-`BREAKING CHANGE:`.
+Keep each commit to one change a reviewer can accept on its own.
 
 ## Changelog Policy
 
