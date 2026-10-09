@@ -43,16 +43,6 @@ Changelogs are maintained by
 | Merge               | Author / reviewer | Rebase merge                       |
 | Publish             | CI                | `packages.yml` runs on `main` push |
 
-## Docs Platform
-
-Project documentation is written in Markdown and hosted on GitHub Pages.
-
-- Package-level docs live in the repo README and inline JSDoc.
-- Dedicated docs sites (when needed) use [VitePress](https://vitepress.dev/).
-  See `docs/` in the relevant package for source.
-- The personal site at [langri-sha.com](https://langri-sha.com) hosts guides and
-  demos.
-
 ## CI
 
 All repos call the reusable workflow from
