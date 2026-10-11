@@ -83,6 +83,7 @@ const project = new Project({
       extends: ['@langri-sha/tsconfig', '@langri-sha/tsconfig/react.json'],
     },
   },
+  worktrunk: {},
 })
 
 project.package?.addEngine('pnpm', '>= 11.0.0')
