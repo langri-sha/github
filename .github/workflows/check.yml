@@ -113,6 +113,10 @@ jobs:
         if: inputs.projen
         run: pnpm projen
 
+      - name: Resynthesize with updated dependencies
+        if: inputs.projen
+        run: pnpm projen
+
       - name: Stage generated changes
         if: inputs.beachball
         run: git add -A
