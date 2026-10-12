@@ -198,11 +198,13 @@ jobs:
           git config user.email "${BOT_ID}+${BOT_NAME}@users.noreply.github.com"
 
       - name: Apply diff
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
           git apply .diff.patch
           git add .
           git commit -m "chore(deps): Apply upgrade changes"
-          git push origin ${{ github.event.pull_request.head.ref }}
+          git push origin "$HEAD_REF"
 
   lint:
     name: Lint
