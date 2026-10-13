@@ -109,9 +109,34 @@ jobs:
         if: inputs.vitest
         run: pnpm vitest --update --passWithNoTests
 
-      - name: Apply projen changes
+      - name: Synthesize Projen changes
+        if: inputs.projen
+        run: pnpm projen --no-post
+
+      - name: Set up updated pnpm
+        if: inputs.projen
+        uses: pnpm/action-setup@v6
+        with:
+          run_install: false
+
+      - name: Set up updated Node.js
+        if: inputs.projen
+        uses: actions/setup-node@v7
+        with:
+          cache: pnpm
+          node-version-file: package.json
+
+      - name: Install updated dependencies
+        if: inputs.projen
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Resynthesize after installing generator updates
         if: inputs.projen
         run: pnpm projen
+
+      - name: Refresh generated dependency lockfile
+        if: inputs.projen
+        run: pnpm install --no-frozen-lockfile
 
       - name: Stage generated changes
         if: inputs.beachball
