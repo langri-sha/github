@@ -61,6 +61,10 @@ on:
         description: Run projen checks.
         type: boolean
         default: false
+      uv:
+        description: Refresh uv lockfiles after Projen synthesis.
+        type: boolean
+        default: false
       vitest:
         description: Run Vitest checks.
         type: boolean
@@ -137,6 +141,18 @@ jobs:
       - name: Refresh generated dependency lockfile
         if: inputs.projen
         run: pnpm install --no-frozen-lockfile
+
+      - name: Set up uv
+        if: inputs.uv
+        uses: astral-sh/setup-uv@v10.1.0
+
+      - name: Refresh uv lockfile
+        if: inputs.uv
+        run: uv lock
+
+      - name: Verify uv lockfile
+        if: inputs.uv
+        run: uv lock --check
 
       - name: Stage generated changes
         if: inputs.beachball
