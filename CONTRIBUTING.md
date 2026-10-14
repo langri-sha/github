@@ -1,7 +1,5 @@
 # Contributing
 
-Thank you for contributing to Langri-Sha open source projects.
-
 ## Commit Conventions
 
 Write each commit subject as a plain imperative sentence of around 50
