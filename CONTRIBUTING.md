@@ -81,9 +81,10 @@ jobs:
 ```
 
 - Pin `check.yml` to a released version; Renovate keeps the pin current.
-- `permissions: contents: write` is required. The called Renovate post-upgrade
-  job needs it, and a called job can't exceed its caller's permissions, so
-  without it the run fails at startup.
+- Set `permissions: contents: write`. The called Renovate post-upgrade job needs
+  it, and a called job can't exceed its caller's permissions, so where the
+  repository's default workflow token is read-only the run fails at startup
+  without it.
 - Enable only the checks a repository uses. Set `dagger: true` to run
   `dagger check` in place of the lint and Vitest jobs.
 
