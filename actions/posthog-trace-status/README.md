@@ -8,7 +8,7 @@ then publish its `posthog-trace-url` output from a job that may write statuses:
 ```yaml
 jobs:
   check:
-    uses: langri-sha/github/.github/workflows/check.yml@v0
+    uses: langri-sha/github/.github/workflows/check.yml@v0.24.0
     with:
       dagger: true
       posthog-project-token: phc_...
@@ -21,7 +21,7 @@ jobs:
     permissions:
       statuses: write
     steps:
-      - uses: langri-sha/github/actions/posthog-trace-status@v0
+      - uses: langri-sha/github/actions/posthog-trace-status@v0.24.0
         with:
           url: ${{ needs.check.outputs.posthog-trace-url }}
 ```
