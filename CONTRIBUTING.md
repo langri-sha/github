@@ -89,3 +89,8 @@ jobs:
   `dagger check` in place of the lint and Vitest jobs.
 
 Nothing merges with a red CI.
+
+## Documentation
+
+READMEs and `AGENTS.md` files follow the
+[documentation standard](docs/documentation-standard.md).
