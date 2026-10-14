@@ -24,22 +24,23 @@ Changelogs are maintained by
    Choose the bump type (`patch`, `minor`, `major`) and write a one-line human
    description. The change file is committed alongside your code.
 
-2. On merge to `main`, the `packages.yml` CI workflow collects change files,
-   bumps versions following semver, writes `CHANGELOG.md`, and publishes to npm
-   automatically.
+2. Nothing publishes on merge. A maintainer runs the repository's Release
+   workflow (`publish.yml`) from the Actions tab. It calls `packages.yml`, which
+   collects the change files, bumps versions, writes `CHANGELOG.md` and
+   publishes to npm.
 
 3. **Do not hand-edit `CHANGELOG.md` or `package.json` versions.** Let Beachball
    manage them.
 
 ## Release Process
 
-| Step                | Who               | How                                |
-| ------------------- | ----------------- | ---------------------------------- |
-| Open PR             | Author            | Regular branch → PR                |
-| Pass CI             | CI                | `check.yml` must be green          |
-| Include change file | Author            | `pnpm beachball change`            |
-| Merge               | Author / reviewer | Rebase merge                       |
-| Publish             | CI                | `packages.yml` runs on `main` push |
+| Step                | Who               | How                              |
+| ------------------- | ----------------- | -------------------------------- |
+| Open PR             | Author            | Regular branch → PR              |
+| Pass CI             | CI                | `check.yml` must be green        |
+| Include change file | Author            | `pnpm beachball change`          |
+| Merge               | Author / reviewer | Rebase merge                     |
+| Publish             | Maintainer        | Run the Release workflow by hand |
 
 ## CI
 
