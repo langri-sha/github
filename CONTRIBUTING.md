@@ -15,14 +15,20 @@ Keep each commit to one change a reviewer can accept on its own.
 Changelogs are maintained by
 [Beachball](https://microsoft.github.io/beachball/).
 
-1. Every PR that changes user-facing behaviour must include a change file:
+1. Every PR that touches a package's files must include a change file, or
+   `beachball check` fails. Files listed in `ignorePatterns` in
+   `beachball.config.cjs`, such as root tooling, are exempt.
 
    ```sh
    pnpm beachball change
    ```
 
    Choose the bump type (`patch`, `minor`, `major`) and write a one-line human
-   description. The change file is committed alongside your code.
+   description. Use `none` for changes that shouldn't cut a release on their
+   own, such as README-only edits. The change file is committed alongside your
+   code.
+
+   On Renovate and Dependabot PRs, CI writes a `patch` change file itself.
 
 2. Nothing publishes on merge. A maintainer runs the repository's Release
    workflow (`publish.yml`) from the Actions tab. It calls `packages.yml`, which
