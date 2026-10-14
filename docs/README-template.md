@@ -1,34 +1,27 @@
 # {repo-name}
 
-> One-line description of what this does and why someone would use it.
+[![Workspace](https://github.com/langri-sha/{repo-name}/actions/workflows/workspace.yml/badge.svg)](https://github.com/langri-sha/{repo-name}/actions/workflows/workspace.yml)
 
-[![CI](https://github.com/langri-sha/{repo-name}/actions/workflows/ci.yml/badge.svg)](https://github.com/langri-sha/{repo-name}/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/@langri-sha/{repo-name}.svg)](https://www.npmjs.com/package/@langri-sha/{repo-name})
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-## Install
-
-```sh
-pnpm add @langri-sha/{repo-name}
-```
+One paragraph: what it does and who it's for, in the present tense and true
+today.
 
 ## Usage
 
-```ts
-import { something } from '@langri-sha/{repo-name}'
+```sh
+pnpm add {package-name}
+```
 
-// minimal working example
+```ts
+import { something } from '{package-name}'
+
 const result = something({ option: 'value' })
 ```
 
-See [full API docs](https://langri-sha.com/{repo-name}) for all options.
+For an app or infrastructure, say how to run it or how a change reaches
+production instead.
 
 ## Contributing
 
-See
-[CONTRIBUTING.md](https://github.com/langri-sha/github/blob/main/CONTRIBUTING.md)
-for commit conventions, changelog, and release process.
-
-## License
-
-MIT © [Filip Dupanović](https://github.com/langri-sha)
+One or two lines specific to this repository: the checks to run, whether a
+change file is needed, how a release happens. See
+[CONTRIBUTING.md](https://github.com/langri-sha/github/blob/main/CONTRIBUTING.md).
