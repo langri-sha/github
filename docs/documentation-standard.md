@@ -63,15 +63,9 @@ repository overrides the usual flow, for example "commit on `main` and push each
 commit". Constraint sections hold the rules a newcomer would break, such as
 `vitest/AGENTS.md` on Vitest being both a peer and a devDependency.
 
-Every repository with an `AGENTS.md` also has a `CLAUDE.md` with one line:
-
-```md
-@AGENTS.md
-```
-
-Where the repository root is a Beachball package, add both files to
-`ignorePatterns` and `npmIgnore` in `.projenrc.ts`, as `prettier` does for
-`AGENTS.md`. Otherwise they demand a change file and ship in the tarball.
+Where the repository root is a Beachball package, add `AGENTS.md` to
+`ignorePatterns` and `npmIgnore` in `.projenrc.ts`, as `prettier` does.
+Otherwise it demands a change file and ships in the tarball.
 
 ### Who owns which file
 
