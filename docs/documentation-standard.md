@@ -28,6 +28,10 @@ the rules a newcomer would break. Both are short, and neither carries history.
 - Keep each file's name and casing, `readme.md` or `README.md`. Renaming breaks
   links and buys nothing.
 - Use relative paths, never absolute host paths.
+- Don't name a private repository unless the repository being documented is
+  private too. State the constraint and leave out where it lives: "Repository
+  settings, branch protection and the Actions secrets are managed by Terraform
+  outside this repository; don't change them in the GitHub UI."
 
 ## README
 
