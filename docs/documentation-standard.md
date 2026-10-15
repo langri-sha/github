@@ -20,6 +20,9 @@ the rules a newcomer would break. Both are short, and neither carries history.
 
 - No history: no "ported from", former package names, dated status, phase
   labels, or "currently", "yet" and "for now". Git and the changelog keep it.
+- Keep the owner's voice. A personal opener, a joke, an emoji or a first-person
+  line stays verbatim, typos included, with the factual description after it. If
+  a line could be voice or narration, keep it.
 - Don't hard-code what drifts, like Node, pnpm or Terraform versions, or cloud
   IDs. Name the file that pins it.
 - Keep each file's name and casing, `readme.md` or `README.md`. Renaming breaks
