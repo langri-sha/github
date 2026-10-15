@@ -21,10 +21,10 @@ on:
     secrets:
       APP_CLIENT_ID:
         description: GitHub App Client ID used for authenticated release Git operations.
-        required: true
+        required: false
       APP_PRIVATE_KEY:
         description: GitHub App private key used for authenticated release Git operations.
-        required: true
+        required: false
 
 jobs:
   publish:
@@ -36,13 +36,56 @@ jobs:
       contents: read
 
     steps:
+      - name: Choose where the App credentials come from
+        id: credentials
+        env:
+          APP_CLIENT_ID: ${{ vars.APP_CLIENT_ID }}
+          APP_PRIVATE_KEY_SECRET: ${{ vars.APP_PRIVATE_KEY_SECRET }}
+          GOOGLE_PROJECT: ${{ vars.GOOGLE_PROJECT }}
+          WORKLOAD_IDENTITY_PROVIDER: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          SECRET_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
+          SECRET_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+        run: |
+          if [[ -n $SECRET_CLIENT_ID && -n $SECRET_PRIVATE_KEY ]]; then
+            echo 'federate=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          for variable in APP_CLIENT_ID APP_PRIVATE_KEY_SECRET GOOGLE_PROJECT WORKLOAD_IDENTITY_PROVIDER; do
+            if [[ -z ${!variable} ]]; then
+              echo "::error::Neither the App secrets nor the $variable variable is set on $GITHUB_REPOSITORY."
+              exit 1
+            fi
+          done
+
+          echo 'federate=true' >> "$GITHUB_OUTPUT"
+
+      - name: Authenticate to Google Cloud
+        id: google-cloud
+        if: steps.credentials.outputs.federate == 'true'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+        with:
+          project_id: ${{ vars.GOOGLE_PROJECT }}
+          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+
+      - name: Read the App's private key
+        id: secret-manager
+        if: steps.credentials.outputs.federate == 'true'
+        uses: google-github-actions/get-secretmanager-secrets@bc9c54b29fdffb8a47776820a7d26e77b379d262 # v3.0.0
+        with:
+          secrets: private-key:${{ vars.APP_PRIVATE_KEY_SECRET }}
+
       - name: Generate App token
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ secrets.APP_CLIENT_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          client-id: ${{ steps.credentials.outputs.federate == 'true' && vars.APP_CLIENT_ID || secrets.APP_CLIENT_ID }}
+          private-key: ${{ steps.credentials.outputs.federate == 'true' && steps.secret-manager.outputs.private-key || secrets.APP_PRIVATE_KEY }}
           permission-contents: write
+
+      - name: Remove the Google credentials
+        if: steps.credentials.outputs.federate == 'true'
+        run: rm "${{ steps.google-cloud.outputs.credentials_file_path }}"
 
       - name: Checkout
         uses: actions/checkout@v7
