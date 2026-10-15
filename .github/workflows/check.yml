@@ -75,8 +75,8 @@ on:
           Link to the Dagger trace in PostHog, or empty when there is none.
         value: ${{ jobs.dagger.outputs.posthog-trace-url }}
     secrets:
-      APP_ID:
-        description: GitHub App ID used for the post-upgrade push.
+      APP_CLIENT_ID:
+        description: GitHub App client ID used for the post-upgrade push.
         required: false
       APP_PRIVATE_KEY:
         description: GitHub App private key used for the post-upgrade push.
@@ -205,7 +205,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
-          app-id: ${{ secrets.APP_ID }}
+          client-id: ${{ secrets.APP_CLIENT_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
           permission-contents: write
 
