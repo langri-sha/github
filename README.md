@@ -67,6 +67,30 @@ off Beachball's `gitTags` and set `tag-template`, e.g. `v{version}`. Set
 `github-releases: true` to also create a GitHub release for each published
 version.
 
+### App credentials
+
+Both workflows mint a GitHub App token: `check.yml` to push Renovate's
+post-upgrade changes, `packages.yml` for the release commit and its tags. Pass
+the App's client ID and private key as the `APP_CLIENT_ID` and `APP_PRIVATE_KEY`
+secrets, which `secrets: inherit` covers.
+
+A repository that stores no App credentials can have the workflow read them
+instead, keeping nothing secret in GitHub. Grant the calling job
+`id-token: write` and set four Actions variables:
+
+| Variable                     | Description                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------------- |
+| `APP_CLIENT_ID`              | The App's client ID, which is not a secret                                            |
+| `APP_PRIVATE_KEY_SECRET`     | Secret Manager secret holding the private key, as `projects/<project>/secrets/<name>` |
+| `GOOGLE_PROJECT`             | Google Cloud project to authenticate against                                          |
+| `WORKLOAD_IDENTITY_PROVIDER` | Full resource name of the Workload Identity provider that trusts the job's token      |
+
+The job then authenticates with its own OIDC token through Workload Identity
+Federation, reads the private key, mints the token, and deletes the Google
+credentials before checking anything out. It takes this path only when the
+secrets are absent, and a repository with neither fails on the first step,
+naming what is missing.
+
 ## Actions
 
 | Action                                                                      | Description                              |
