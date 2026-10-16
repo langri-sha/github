@@ -16,6 +16,13 @@ on:
           inputs then only pick the post-upgrade fixes.
         type: boolean
         default: false
+      runs-on:
+        description: >-
+          Runner label for every job, e.g. a self-hosted scale set. The job
+          that commits the Renovate fixes reads the GitHub App's key, so a
+          caller that sets this runs that key on its own runner.
+        type: string
+        default: ubuntu-latest
       dagger-version:
         description: >-
           Dagger engine version to run, e.g. `v1.0.0-beta.15`, in place of the
@@ -87,7 +94,7 @@ on:
 jobs:
   post-upgrade:
     name: Renovate Post-Upgrade
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
 
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && (github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]')
     permissions:
@@ -195,7 +202,7 @@ jobs:
 
   commit-upgrade-changes:
     name: Commit Upgrade Changes
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     if: needs.post-upgrade.outputs.has-changes == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && (github.actor == 'renovate[bot]' || github.actor == 'dependabot[bot]')
     needs: [post-upgrade]
 
@@ -295,7 +302,7 @@ jobs:
 
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     needs: [commit-upgrade-changes]
     if: always() && !inputs.dagger
     permissions:
@@ -366,7 +373,7 @@ jobs:
 
   vitest:
     name: Vitest
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     needs: [commit-upgrade-changes]
     if: always() && inputs.vitest && !inputs.dagger
     permissions:
@@ -386,7 +393,7 @@ jobs:
 
   dagger:
     name: Dagger
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     needs: [commit-upgrade-changes]
     if: always() && inputs.dagger && needs.commit-upgrade-changes.result != 'success'
     permissions:
