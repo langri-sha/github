@@ -8,12 +8,14 @@ on:
       - .github/workflows/actions.yml
       - actions/dagger-version/**
       - actions/github-release/**
+      - actions/merge-base/**
       - actions/posthog-trace-status/**
   pull_request:
     paths:
       - .github/workflows/actions.yml
       - actions/dagger-version/**
       - actions/github-release/**
+      - actions/merge-base/**
       - actions/posthog-trace-status/**
 
 jobs:
@@ -156,6 +158,74 @@ jobs:
 
           if [[ "$actual" != "$EXPECTED" ]]; then
             echo "::error::Expected notes '$EXPECTED', got '$actual'."
+            exit 1
+          fi
+
+  merge-base:
+    name: Merge base (${{ matrix.case }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - case: shallow
+            fetch-depth: 1
+          - case: complete
+            fetch-depth: 0
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: ${{ matrix.fetch-depth }}
+          persist-credentials: false
+
+      - name: Find merge base
+        id: merge-base
+        uses: ./actions/merge-base
+
+      - name: Check result
+        env:
+          SHA: ${{ steps.merge-base.outputs.sha }}
+          HEAD_SHA: ${{ steps.merge-base.outputs.head }}
+          BASE: ${{ github.base_ref || github.event.repository.default_branch }}
+          SHALLOW: ${{ matrix.case == 'shallow' }}
+        run: |
+          if [[ $(git rev-parse --is-shallow-repository) != "$SHALLOW" ]]; then
+            echo '::error::Expected the checkout to keep its depth.'
+            exit 1
+          fi
+
+          if [[ $(< .merge-base/sha) != "$SHA" || $(< .merge-base/ref) != "$BASE" ]]; then
+            echo "::error::Expected .merge-base to hold $SHA and $BASE."
+            exit 1
+          fi
+
+          if [[ $SHALLOW == true ]]; then
+            git fetch --quiet --no-tags --unshallow origin \
+              "$(git rev-parse HEAD)" "+refs/heads/${BASE}:refs/remotes/origin/${BASE}"
+          fi
+
+          mapfile -t parents < <(git cat-file commit HEAD | sed -n 's/^parent //p')
+          if (( ${#parents[@]} == 2 )); then
+            head=${parents[1]}
+            sha=$(git merge-base "${parents[@]}")
+          else
+            head=$(git rev-parse HEAD)
+            sha=$(git merge-base HEAD "origin/${BASE}")
+          fi
+
+          if [[ $SHA != "$sha" || $HEAD_SHA != "$head" ]]; then
+            echo "::error::Expected merge base $sha of $head, got $SHA of $HEAD_SHA."
+            exit 1
+          fi
+
+          if ! git -c core.quotePath=false diff --name-status --no-renames -z "$sha" "$head" |
+            cmp - .merge-base/changes; then
+            echo '::error::Expected .merge-base/changes to match the diff from the full history.'
             exit 1
           fi
 

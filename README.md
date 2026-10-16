@@ -100,6 +100,7 @@ naming what is missing.
 | [`actions/google-cloud-platform`](actions/google-cloud-platform/)           | Authenticate to Google Cloud             |
 | [`actions/terraform`](actions/terraform/)                                   | Set up Terraform                         |
 | [`actions/dagger-version`](actions/dagger-version/)                         | Resolve the Dagger engine version        |
+| [`actions/merge-base`](actions/merge-base/)                                 | Find a merge base and the changed paths  |
 | [`actions/posthog-trace-status`](actions/posthog-trace-status/)             | Link a commit to its PostHog trace       |
 | [`actions/github-release`](actions/github-release/)                         | Create GitHub releases for tags          |
 
