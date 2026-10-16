@@ -32,6 +32,7 @@ jobs:
 | `packages`              | `false`                    | Validate `package.json` files                    |
 | `projen`                | `false`                    | Check that projen's output is up to date         |
 | `dagger`                | `false`                    | Run the repository's Dagger checks instead       |
+| `runs-on`               | `ubuntu-latest`            | Runner label for every job                       |
 | `dagger-version`        | `''`                       | Dagger version, if it can't be read from modules |
 | `posthog-project-token` | `''`                       | Send Dagger traces to PostHog                    |
 | `posthog-project-id`    | `''`                       | Link each run to its trace in PostHog            |
