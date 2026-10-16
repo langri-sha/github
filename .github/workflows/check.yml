@@ -402,7 +402,7 @@ jobs:
 
       - name: Find merge base for Beachball
         if: inputs.beachball
-        uses: langri-sha/github/actions/merge-base@2b6aee5d2a27b06b81726573202692efeecb89e7
+        uses: langri-sha/github/actions/merge-base@v0.26.0
 
       - name: Resolve Dagger version
         id: dagger-version
