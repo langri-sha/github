@@ -22,6 +22,7 @@ const project = new Project({
   codeowners: {
     '*': '@langri-sha',
   },
+  dagger: {},
   editorConfig: {},
   husky: {
     'pre-commit': 'pnpm --silent lint-staged',
