@@ -4,7 +4,9 @@ on:
   workflow_call:
     inputs:
       beachball:
-        description: Run Beachball checks.
+        description: >-
+          Run Beachball checks. With `dagger`, the Dagger job first hands the
+          beachball module the merge base and the changed paths.
         type: boolean
         default: false
       dagger:
@@ -397,6 +399,10 @@ jobs:
         uses: actions/checkout@v7
         with:
           persist-credentials: false
+
+      - name: Find merge base for Beachball
+        if: inputs.beachball
+        uses: langri-sha/github/actions/merge-base@2b6aee5d2a27b06b81726573202692efeecb89e7
 
       - name: Resolve Dagger version
         id: dagger-version
