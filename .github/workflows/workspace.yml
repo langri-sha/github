@@ -13,6 +13,8 @@ jobs:
       id-token: write
     uses: ./.github/workflows/check.yml
     with:
+      dagger: true
+      dagger-version: v1.0.0-beta.16
       prettier: true
       projen: true
       typescript: true
