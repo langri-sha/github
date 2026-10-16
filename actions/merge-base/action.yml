@@ -1,0 +1,108 @@
+name: Merge base
+description: |-
+  Finds the merge base of a change and its base branch, and the paths the
+  change touches, from a shallow checkout, and writes them to `.merge-base/` at
+  the repository root for tools that can't read the history themselves, like
+  the `beachball` Dagger module. It fetches commits without their trees,
+  deepening until the merge base turns up, and then only the two trees it
+  compares, so the checkout stays shallow and no blobs are fetched.
+
+  On a pull request's merge commit, the change is the pull request's head, so
+  what the base branch gained since it forked doesn't count. Otherwise it is
+  `HEAD`. Requires a checkout with an `origin` remote.
+
+inputs:
+  base:
+    description: |-
+      The base branch, e.g. `main`. Defaults to a pull request's base branch, or
+      else the repository's default branch.
+    required: false
+    default: ${{ github.base_ref || github.event.repository.default_branch }}
+  token:
+    description: |-
+      A token that can read the repository, used only for these fetches, since
+      a checkout with `persist-credentials: false` keeps none.
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  sha:
+    description: The merge base of the change and the base branch.
+    value: ${{ steps.merge-base.outputs.sha }}
+  head:
+    description: |-
+      The commit the change ends at: a pull request's head on its merge commit,
+      or else `HEAD`.
+    value: ${{ steps.merge-base.outputs.head }}
+
+runs:
+  using: composite
+
+  steps:
+    - name: Find merge base
+      id: merge-base
+      shell: bash
+      env:
+        BASE: ${{ inputs.base }}
+        TOKEN: ${{ inputs.token }}
+      run: |
+        set -euo pipefail
+
+        if [[ -z $BASE ]]; then
+          echo '::error::No base branch to find the merge base with. Set the base input.'
+          exit 1
+        fi
+
+        header="http.${GITHUB_SERVER_URL}/.extraheader"
+        if [[ -n $TOKEN ]] && ! git config --get-all "$header" > /dev/null; then
+          authorization=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
+          echo "::add-mask::${authorization}"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0="$header"
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${authorization}"
+        fi
+
+        # A shallow checkout grafts away the parents of its tip, so read them
+        # from the commit itself.
+        mapfile -t parents < <(git cat-file commit HEAD | sed -n 's/^parent //p')
+
+        if (( ${#parents[@]} == 2 )); then
+          base=${parents[0]}
+          head=${parents[1]}
+          refspecs=("$base" "$head")
+        else
+          base="refs/remotes/origin/${BASE}"
+          head=$(git rev-parse HEAD)
+          refspecs=("$head" "+refs/heads/${BASE}:${base}")
+        fi
+
+        if [[ $(git rev-parse --is-shallow-repository) == false ]]; then
+          git fetch --no-tags origin "${refspecs[@]}"
+          sha=$(git merge-base "$base" "$head")
+        else
+          for depth in 50 200 1000 5000 25000; do
+            git fetch --no-tags --filter=tree:0 --depth="$depth" origin "${refspecs[@]}"
+            sha=$(git merge-base "$base" "$head") && break
+          done
+
+          if [[ -z ${sha:-} ]]; then
+            echo "::error::No merge base of ${head} and ${BASE} within ${depth} commits."
+            exit 1
+          fi
+
+          git fetch --no-tags --filter=blob:none --depth=1 origin "$sha" "$head"
+        fi
+
+        echo "Merge base of ${head} and ${BASE}: ${sha}"
+        git -c core.quotePath=false diff --name-status --no-renames "$sha" "$head"
+
+        out="$(git rev-parse --show-toplevel)/.merge-base"
+        mkdir -p "$out"
+        echo "$sha" > "$out/sha"
+        echo "$BASE" > "$out/ref"
+        git -c core.quotePath=false diff --name-status --no-renames -z "$sha" "$head" > "$out/changes"
+
+        {
+          echo "sha=${sha}"
+          echo "head=${head}"
+        } >> "$GITHUB_OUTPUT"
