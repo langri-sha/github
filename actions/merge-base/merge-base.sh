@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-branch=${1:-}
+error() {
+  if [[ -n ${GITHUB_ACTIONS:-} ]]; then
+    echo "::error::$*"
+  else
+    echo "error: $*" >&2
+  fi
+}
+
+branch=${1:-$(git ls-remote --symref origin HEAD | sed -n 's|^ref: refs/heads/\(.*\)\tHEAD$|\1|p')}
 if [[ -z $branch ]]; then
-  echo '::error::No base branch to find the merge base with. Set the base input.'
+  error 'No base branch to find the merge base with, and origin names no default branch.'
   exit 1
 fi
 
@@ -21,7 +29,8 @@ if [[ ${GITHUB_REF:-} == refs/pull/*/merge && ${GITHUB_SHA:-} == "$head" ]]; the
 fi
 
 if [[ $(git rev-parse --is-shallow-repository) == false ]]; then
-  git fetch --no-tags origin "${refspecs[@]}"
+  # A local HEAD may be missing from origin.
+  git fetch --no-tags origin "+refs/heads/${branch}:refs/remotes/origin/${branch}"
   sha=$(git merge-base "$base" "$head")
 else
   for depth in 50 200 1000 5000 25000; do
@@ -30,7 +39,7 @@ else
   done
 
   if [[ -z ${sha:-} ]]; then
-    echo "::error::No merge base of ${head} and ${branch} within ${depth} commits."
+    error "No merge base of ${head} and ${branch} within ${depth} commits."
     exit 1
   fi
 
@@ -46,7 +55,9 @@ echo "$sha" > "$out/sha"
 echo "$branch" > "$out/ref"
 git -c core.quotePath=false diff --name-status --no-renames -z "$sha" "$head" > "$out/changes"
 
-{
-  echo "sha=${sha}"
-  echo "head=${head}"
-} >> "$GITHUB_OUTPUT"
+if [[ -n ${GITHUB_OUTPUT:-} ]]; then
+  {
+    echo "sha=${sha}"
+    echo "head=${head}"
+  } >> "$GITHUB_OUTPUT"
+fi
