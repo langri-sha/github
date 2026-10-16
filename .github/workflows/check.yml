@@ -169,9 +169,11 @@ jobs:
 
       - name: Create Beachball changes
         if: inputs.beachball
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
         run: |
           pnpm beachball change \
-            --message "${{ github.event.pull_request.title }}" \
+            --message "$TITLE" \
             --no-commit \
             --type patch \
             --yes
