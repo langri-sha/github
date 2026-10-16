@@ -32,10 +32,12 @@ pnpm install
 pnpm exec projen               # re-synthesize from .projenrc.ts
 pnpm prettier --check .
 pnpm tsc --build .             # type check
+dagger check                   # the checks, as CI runs them
 ```
 
-CI runs the same Prettier, projen and TypeScript checks, and fails when
-synthesized files drift from `.projenrc.ts`. On Renovate pull requests it
+CI runs the same checks with `dagger check` and the modules in `dagger.toml`,
+and also checks that the package manifests are sorted and fixed. It fails when
+synthesized files drift from `.projenrc.ts`, and on Renovate pull requests it
 re-synthesizes and commits the result.
 
 ## Workflows use released actions
