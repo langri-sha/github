@@ -3,5 +3,8 @@
 # Run `dagger lock update` to refresh the pinned versions.
 [["version","2"]]
 ["","git-latest",["github.com/dagger/prettier"],"refs/tags/v0.2.0"]
+["","git-latest",["github.com/langri-sha/dagger",["tagPrefix","ci"],["version","v1.0.0"]],"refs/tags/v1.0.0"]
+["","git-latest",["github.com/langri-sha/dagger",["tagPrefix","typescript"],["version","v1.0.0"]],"refs/tags/v1.0.0"]
 ["","git-sha",["github.com/dagger/prettier","refs/tags/v0.2.0"],"c9b4c3622c3e161903f497c4a7bb5140437de4a7"]
+["","git-sha",["github.com/langri-sha/dagger","refs/tags/v1.0.0"],"c475521e5c02c621594b6eb5377360860f6ed69f"]
 ["","vanity-url",["https://dagger.io/js/prettier"],"https://github.com/dagger/prettier"]
