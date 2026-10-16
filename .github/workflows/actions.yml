@@ -175,6 +175,8 @@ jobs:
             fetch-depth: 1
           - case: complete
             fetch-depth: 0
+          - case: local
+            fetch-depth: 0
 
     steps:
       - name: Checkout
@@ -185,22 +187,27 @@ jobs:
 
       - name: Find merge base
         id: merge-base
+        if: matrix.case != 'local'
         uses: ./actions/merge-base
+
+      - name: Find merge base of a local commit
+        if: matrix.case == 'local'
+        run: |
+          echo local > local-change
+          git add local-change
+          git -c user.name=local -c user.email=local@localhost commit --quiet --message 'Change locally'
+          env -u GITHUB_ACTIONS -u GITHUB_OUTPUT -u GITHUB_REF -u GITHUB_SHA actions/merge-base/merge-base.sh
 
       - name: Check result
         env:
           SHA: ${{ steps.merge-base.outputs.sha }}
           HEAD_SHA: ${{ steps.merge-base.outputs.head }}
-          BASE: ${{ github.base_ref || github.event.repository.default_branch }}
+          BASE: ${{ (matrix.case != 'local' && github.base_ref) || github.event.repository.default_branch }}
           SHALLOW: ${{ matrix.case == 'shallow' }}
+          LOCAL: ${{ matrix.case == 'local' }}
         run: |
           if [[ $(git rev-parse --is-shallow-repository) != "$SHALLOW" ]]; then
             echo '::error::Expected the checkout to keep its depth.'
-            exit 1
-          fi
-
-          if [[ $(< .merge-base/sha) != "$SHA" || $(< .merge-base/ref) != "$BASE" ]]; then
-            echo "::error::Expected .merge-base to hold $SHA and $BASE."
             exit 1
           fi
 
@@ -217,7 +224,12 @@ jobs:
             sha=$(git merge-base HEAD "origin/${BASE}")
           fi
 
-          if [[ $SHA != "$sha" || $HEAD_SHA != "$head" ]]; then
+          if [[ $(< .merge-base/sha) != "$sha" || $(< .merge-base/ref) != "$BASE" ]]; then
+            echo "::error::Expected .merge-base to hold $sha and $BASE."
+            exit 1
+          fi
+
+          if [[ $LOCAL == false && ($SHA != "$sha" || $HEAD_SHA != "$head") ]]; then
             echo "::error::Expected merge base $sha of $head, got $SHA of $HEAD_SHA."
             exit 1
           fi

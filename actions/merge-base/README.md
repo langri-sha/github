@@ -35,3 +35,18 @@ where `fetch-depth: 0` downloads the whole history.
 
 The fetches authenticate with `token`, which defaults to the job's token, for
 those commands only, so the action works with `persist-credentials: false`.
+
+## Locally
+
+`dagger check` and `dagger generate` need `.merge-base/` on a laptop too. The
+action runs [`merge-base.sh`](merge-base.sh), and so can you, anywhere in a
+clone with an `origin` remote:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/langri-sha/github/v0.27.0/actions/merge-base/merge-base.sh | bash
+```
+
+Use the tag your workflows pin `check.yml` to. It takes the base branch as its
+argument (`bash -s -- main`), or else asks `origin` for its default branch. It
+compares `HEAD`, so uncommitted changes don't count: commit first, and run it
+again after each commit. Git should ignore `/.merge-base/`.
