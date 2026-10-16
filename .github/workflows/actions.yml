@@ -209,10 +209,9 @@ jobs:
               "$(git rev-parse HEAD)" "+refs/heads/${BASE}:refs/remotes/origin/${BASE}"
           fi
 
-          mapfile -t parents < <(git cat-file commit HEAD | sed -n 's/^parent //p')
-          if (( ${#parents[@]} == 2 )); then
-            head=${parents[1]}
-            sha=$(git merge-base "${parents[@]}")
+          if [[ $GITHUB_REF == refs/pull/*/merge && $(git rev-parse HEAD) == "$GITHUB_SHA" ]]; then
+            head=$(git rev-parse HEAD^2)
+            sha=$(git merge-base HEAD^1 HEAD^2)
           else
             head=$(git rev-parse HEAD)
             sha=$(git merge-base HEAD "origin/${BASE}")

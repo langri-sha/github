@@ -7,18 +7,17 @@ if [[ -z $branch ]]; then
   exit 1
 fi
 
-# A shallow checkout grafts away the parents of its tip, so read them from the
-# commit itself.
-mapfile -t parents < <(git cat-file commit HEAD | sed -n 's/^parent //p')
+base="refs/remotes/origin/${branch}"
+head=$(git rev-parse HEAD)
+refspecs=("$head" "+refs/heads/${branch}:${base}")
 
-if (( ${#parents[@]} == 2 )); then
+if [[ ${GITHUB_REF:-} == refs/pull/*/merge && ${GITHUB_SHA:-} == "$head" ]]; then
+  # A shallow checkout grafts away the parents of its tip, so read them from
+  # the commit itself.
+  mapfile -t parents < <(git cat-file commit HEAD | sed -n 's/^parent //p')
   base=${parents[0]}
   head=${parents[1]}
   refspecs=("$base" "$head")
-else
-  base="refs/remotes/origin/${branch}"
-  head=$(git rev-parse HEAD)
-  refspecs=("$head" "+refs/heads/${branch}:${base}")
 fi
 
 if [[ $(git rev-parse --is-shallow-repository) == false ]]; then
