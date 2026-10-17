@@ -46,14 +46,36 @@ else
   git fetch --no-tags --filter=blob:none --depth=1 origin "$sha" "$head"
 fi
 
-echo "Merge base of ${head} and ${branch}: ${sha}"
-git -c core.quotePath=false diff --name-status --no-renames "$sha" "$head"
+cd "$(git rev-parse --show-toplevel)"
+out=.merge-base
 
-out="$(git rev-parse --show-toplevel)/.merge-base"
+# The change is its head's tree with the uncommitted changes on top, put
+# together in scratch indexes so the checkout's own index stays as it is.
+indexes=$(mktemp -d)
+trap 'rm -rf "$indexes"' EXIT
+cp "$(git rev-parse --git-path index)" "$indexes/worktree"
+GIT_INDEX_FILE=$indexes/worktree git add --all -- . ":(exclude,top)${out}"
+GIT_INDEX_FILE=$indexes/change git read-tree "$head"
+{
+  GIT_INDEX_FILE=$indexes/worktree git diff --cached --name-only --no-renames --diff-filter=D -z HEAD |
+    while IFS= read -r -d '' path; do
+      printf '0 %040d\t%s\0' 0 "$path"
+    done
+  GIT_INDEX_FILE=$indexes/worktree git diff --cached --name-only --no-renames --diff-filter=d -z HEAD |
+    GIT_INDEX_FILE=$indexes/worktree GIT_LITERAL_PATHSPECS=1 xargs -0 -r git ls-files --stage -z --
+} | GIT_INDEX_FILE=$indexes/change git update-index -z --index-info
+
+changes() {
+  GIT_INDEX_FILE=$indexes/change git -c core.quotePath=false diff --cached --name-status --no-renames "$@" "$sha"
+}
+
+echo "Merge base of ${head} and ${branch}: ${sha}"
+changes
+
 mkdir -p "$out"
 echo "$sha" > "$out/sha"
 echo "$branch" > "$out/ref"
-git -c core.quotePath=false diff --name-status --no-renames -z "$sha" "$head" > "$out/changes"
+changes -z > "$out/changes"
 
 if [[ -n ${GITHUB_OUTPUT:-} ]]; then
   {

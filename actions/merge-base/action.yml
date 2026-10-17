@@ -9,7 +9,8 @@ description: |-
 
   On a pull request's merge commit, the change is the pull request's head, so
   what the base branch gained since it forked doesn't count. Otherwise it is
-  `HEAD`. Requires a checkout with an `origin` remote.
+  `HEAD`. Uncommitted changes in the working tree count as part of the change.
+  Requires a checkout with an `origin` remote.
 
 inputs:
   base:

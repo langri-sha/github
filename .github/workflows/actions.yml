@@ -177,6 +177,8 @@ jobs:
             fetch-depth: 0
           - case: local
             fetch-depth: 0
+          - case: uncommitted
+            fetch-depth: 1
 
     steps:
       - name: Checkout
@@ -184,6 +186,13 @@ jobs:
         with:
           fetch-depth: ${{ matrix.fetch-depth }}
           persist-credentials: false
+
+      - name: Change the working tree
+        if: matrix.case == 'uncommitted'
+        run: |
+          echo uncommitted >> README.md
+          rm license
+          echo uncommitted > 'uncommitted change'
 
       - name: Find merge base
         id: merge-base
@@ -203,8 +212,9 @@ jobs:
           SHA: ${{ steps.merge-base.outputs.sha }}
           HEAD_SHA: ${{ steps.merge-base.outputs.head }}
           BASE: ${{ (matrix.case != 'local' && github.base_ref) || github.event.repository.default_branch }}
-          SHALLOW: ${{ matrix.case == 'shallow' }}
+          SHALLOW: ${{ matrix.case == 'shallow' || matrix.case == 'uncommitted' }}
           LOCAL: ${{ matrix.case == 'local' }}
+          UNCOMMITTED: ${{ matrix.case == 'uncommitted' }}
         run: |
           if [[ $(git rev-parse --is-shallow-repository) != "$SHALLOW" ]]; then
             echo '::error::Expected the checkout to keep its depth.'
@@ -234,7 +244,19 @@ jobs:
             exit 1
           fi
 
-          if ! git -c core.quotePath=false diff --name-status --no-renames -z "$sha" "$head" |
+          change=$head
+          if [[ $UNCOMMITTED == true ]]; then
+            git worktree add --quiet --detach "$RUNNER_TEMP/change" "$head"
+            echo uncommitted >> "$RUNNER_TEMP/change/README.md"
+            rm "$RUNNER_TEMP/change/license"
+            echo uncommitted > "$RUNNER_TEMP/change/uncommitted change"
+            git -C "$RUNNER_TEMP/change" add --all
+            git -C "$RUNNER_TEMP/change" -c user.name=change -c user.email=change@localhost \
+              commit --quiet --message 'Commit the uncommitted changes'
+            change=$(git -C "$RUNNER_TEMP/change" rev-parse HEAD)
+          fi
+
+          if ! git -c core.quotePath=false diff --name-status --no-renames -z "$sha" "$change" |
             cmp - .merge-base/changes; then
             echo '::error::Expected .merge-base/changes to match the diff from the full history.'
             exit 1
