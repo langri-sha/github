@@ -6,7 +6,10 @@ on:
       beachball:
         description: >-
           Run Beachball checks. With `dagger`, the Dagger job first hands the
-          beachball module the merge base and the changed paths.
+          beachball module the merge base and the changed paths, and the
+          post-upgrade job, after its fixes, has the module write change files
+          titled with the pull request's title. The workspace then installs
+          `github.com/langri-sha/dagger/beachball` as `beachball`.
         type: boolean
         default: false
       dagger:
@@ -113,7 +116,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        if: ${{ !inputs.dagger || inputs.beachball }}
+        if: ${{ !inputs.dagger }}
         uses: langri-sha/github/actions/pnpm@v0.28.0
 
       - name: Apply ESLint fixes
@@ -201,11 +204,11 @@ jobs:
         run: dagger generate -y uv
 
       - name: Stage generated changes
-        if: inputs.beachball
+        if: inputs.beachball && !inputs.dagger
         run: git add -A
 
       - name: Create Beachball changes
-        if: inputs.beachball
+        if: inputs.beachball && !inputs.dagger
         env:
           TITLE: ${{ github.event.pull_request.title }}
         run: |
@@ -216,8 +219,20 @@ jobs:
             --yes
 
       - name: Check Beachball changes
-        if: inputs.beachball
+        if: inputs.beachball && !inputs.dagger
         run: pnpm beachball check
+
+      - name: Find merge base for Beachball
+        if: inputs.dagger && inputs.beachball
+        uses: langri-sha/github/actions/merge-base@683f011927eadcc5ed65f78d4596d2b29a670144
+
+      - name: Create Beachball changes with Dagger
+        if: inputs.dagger && inputs.beachball
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          dagger call -y beachball change --message "$TITLE"
+          rm -r .merge-base
 
       - name: Check for Git changes
         id: git-changes
