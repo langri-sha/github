@@ -23,7 +23,9 @@ on:
           generator, `packages` the `ci/packages` one, and `uv` the `uv`
           module's, one at a time. The workspace installs
           `github.com/langri-sha/dagger/ci` at v1.2.0 or later as `ci`, and
-          `github.com/dagger/python/uv` as `uv` for `uv`.
+          `github.com/dagger/python/uv` as `uv` for `uv`. On Renovate and
+          Dependabot pull requests, the Dagger job then commits what its checks
+          pinned in `dagger.lock`, such as an image whose tag moved.
         type: boolean
         default: false
       runs-on:
@@ -274,7 +276,8 @@ jobs:
       MESSAGE: 'chore(deps): Apply upgrade changes'
 
     steps:
-      - name: Choose where the App credentials come from
+      - &choose-credentials
+        name: Choose where the App credentials come from
         id: credentials
         env:
           APP_CLIENT_ID: ${{ vars.APP_CLIENT_ID }}
@@ -298,7 +301,8 @@ jobs:
 
           echo 'federate=true' >> "$GITHUB_OUTPUT"
 
-      - name: Authenticate to Google Cloud
+      - &authenticate-to-google-cloud
+        name: Authenticate to Google Cloud
         id: google-cloud
         if: steps.credentials.outputs.federate == 'true'
         uses: google-github-actions/auth@v3.0.0
@@ -306,14 +310,16 @@ jobs:
           project_id: ${{ vars.GOOGLE_PROJECT }}
           workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
 
-      - name: Read the App's private key
+      - &read-private-key
+        name: Read the App's private key
         id: secret-manager
         if: steps.credentials.outputs.federate == 'true'
         uses: google-github-actions/get-secretmanager-secrets@v3.0.0
         with:
           secrets: private-key:${{ vars.APP_PRIVATE_KEY_SECRET }}
 
-      - name: Generate App token
+      - &generate-app-token
+        name: Generate App token
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
@@ -321,22 +327,26 @@ jobs:
           private-key: ${{ steps.credentials.outputs.federate == 'true' && steps.secret-manager.outputs.private-key || secrets.APP_PRIVATE_KEY }}
           permission-contents: write
 
-      - name: Remove the Google credentials
+      - &remove-google-credentials
+        name: Remove the Google credentials
         if: steps.credentials.outputs.federate == 'true'
         run: rm "${{ steps.google-cloud.outputs.credentials_file_path }}"
 
-      - name: Checkout
+      - &checkout-pull-request
+        name: Checkout
         uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Download diff
+      - &download-patch
+        name: Download diff
         uses: actions/download-artifact@v8
         with:
           name: ${{ env.PATCH }}
 
-      - name: Reject unsafe paths in patch
+      - &reject-unsafe-paths
+        name: Reject unsafe paths in patch
         run: |
           git apply --check .diff.patch
           if git apply --numstat .diff.patch | awk -F '\t' '{print $3}' | grep -E '^\.github/(workflows|actions)/'; then
@@ -344,7 +354,8 @@ jobs:
             exit 1
           fi
 
-      - name: Configure Git user
+      - &configure-git-user
+        name: Configure Git user
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
@@ -354,7 +365,8 @@ jobs:
           git config user.name  "${BOT_NAME}"
           git config user.email "${BOT_ID}+${BOT_NAME}@users.noreply.github.com"
 
-      - name: Apply diff
+      - &apply-patch
+        name: Apply diff
         env:
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
@@ -463,6 +475,7 @@ jobs:
       contents: read
     outputs:
       posthog-trace-url: ${{ steps.trace.outputs.url }}
+      lock-changed: ${{ steps.lock.outputs.changed }}
 
     steps:
       - name: Checkout
@@ -496,6 +509,24 @@ jobs:
         with:
           version: ${{ inputs.dagger-version || steps.dagger-version.outputs.version }}
           verb: check
+
+      - name: Find what the checks pinned
+        id: lock
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && (github.event.pull_request.user.login == 'renovate[bot]' || github.event.pull_request.user.login == 'dependabot[bot]')
+        run: |
+          git add --intent-to-add dagger.lock
+          git diff --binary -- dagger.lock > .diff.patch
+          if [[ -s .diff.patch ]]; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload the dagger.lock diff
+        if: steps.lock.outputs.changed == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          include-hidden-files: true
+          name: dagger-lock
+          path: .diff.patch
 
       - name: Link PostHog trace
         id: trace
@@ -533,3 +564,28 @@ jobs:
           elif [[ -n $PROJECT_ID ]]; then
             echo '::warning::The PostHog project ID must be numeric, so the trace is not linked.'
           fi
+
+  commit-lock:
+    name: Commit dagger.lock
+    runs-on: ${{ inputs.runs-on }}
+    needs: [dagger]
+    if: ${{ !cancelled() && needs.dagger.result == 'success' && needs.dagger.outputs.lock-changed == 'true' }}
+
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      PATCH: dagger-lock
+      MESSAGE: 'chore(deps): Pin the images in dagger.lock'
+
+    steps:
+      - *choose-credentials
+      - *authenticate-to-google-cloud
+      - *read-private-key
+      - *generate-app-token
+      - *remove-google-credentials
+      - *checkout-pull-request
+      - *download-patch
+      - *reject-unsafe-paths
+      - *configure-git-user
+      - *apply-patch
