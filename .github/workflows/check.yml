@@ -15,10 +15,10 @@ on:
           post-upgrade fixes through Dagger, with the engine version the Dagger
           modules pin, or `dagger-version`. The other inputs then only pick the
           fixes: `eslint` and `prettier` call `ci fix`, `vitest` calls `ci
-          snapshots`, `projen` runs the `ci/projen` generator, and `uv` the `uv`
-          module's, one at a time. The workspace installs
-          `github.com/langri-sha/dagger/ci` at v1.2.0 or later as `ci`, and
-          `github.com/dagger/python/uv` as `uv` for `uv`.
+          snapshots`, `projen` runs the `ci/projen` generator, `packages` the
+          `ci/packages` one, and `uv` the `uv` module's, one at a time. The
+          workspace installs `github.com/langri-sha/dagger/ci` at v1.2.0 or
+          later as `ci`, and `github.com/dagger/python/uv` as `uv` for `uv`.
         type: boolean
         default: false
       runs-on:
@@ -191,6 +191,10 @@ jobs:
       - name: Synthesize projen with Dagger
         if: inputs.dagger && inputs.projen
         run: dagger generate -y ci/projen
+
+      - name: Sort and fix the package manifests with Dagger
+        if: inputs.dagger && inputs.packages
+        run: dagger generate -y ci/packages
 
       - name: Refresh uv lockfiles with Dagger
         if: inputs.dagger && inputs.uv
