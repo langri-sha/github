@@ -34,4 +34,5 @@ node_modules/
 !/.config
 !/.config/wt.toml
 !/renovate.json5
+/throwaway/
 !/.projenrc.ts

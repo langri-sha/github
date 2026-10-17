@@ -1,4 +1,4 @@
 # Throwaway
 
-*  Prettier turns these
-*  into dashes
+- Prettier turns these
+- into dashes
