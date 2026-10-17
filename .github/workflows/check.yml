@@ -11,9 +11,14 @@ on:
         default: false
       dagger:
         description: >-
-          Run `dagger check` in place of the Lint and Vitest jobs, with the
-          engine version the Dagger modules pin, or `dagger-version`. The other
-          inputs then only pick the post-upgrade fixes.
+          Run `dagger check` in place of the Lint and Vitest jobs, and the
+          post-upgrade fixes through Dagger, with the engine version the Dagger
+          modules pin, or `dagger-version`. The other inputs then only pick the
+          fixes: `eslint` and `prettier` call `ci fix`, `vitest` calls `ci
+          snapshots`, `projen` runs the `ci/projen` generator, and `uv` the `uv`
+          module's, one at a time. The workspace installs
+          `github.com/langri-sha/dagger/ci` at v1.2.0 or later as `ci`, and
+          `github.com/dagger/python/uv` as `uv` for `uv`.
         type: boolean
         default: false
       runs-on:
@@ -108,60 +113,88 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
+        if: ${{ !inputs.dagger || inputs.beachball }}
         uses: langri-sha/github/actions/pnpm@v0.28.0
 
       - name: Apply ESLint fixes
-        if: inputs.eslint
+        if: inputs.eslint && !inputs.dagger
         run: pnpm eslint --fix .
 
       - name: Apply Prettier fixes
-        if: inputs.prettier
+        if: inputs.prettier && !inputs.dagger
         run: pnpm prettier --write .
 
       - name: Update Vitest snapshots
-        if: inputs.vitest
+        if: inputs.vitest && !inputs.dagger
         run: pnpm vitest --update --passWithNoTests
 
       - name: Synthesize Projen changes
-        if: inputs.projen
+        if: inputs.projen && !inputs.dagger
         run: pnpm projen --no-post
 
       - name: Set up updated pnpm
-        if: inputs.projen
+        if: inputs.projen && !inputs.dagger
         uses: pnpm/action-setup@v6
         with:
           run_install: false
 
       - name: Set up updated Node.js
-        if: inputs.projen
+        if: inputs.projen && !inputs.dagger
         uses: actions/setup-node@v7
         with:
           cache: pnpm
           node-version-file: package.json
 
       - name: Install updated dependencies
-        if: inputs.projen
+        if: inputs.projen && !inputs.dagger
         run: pnpm install --no-frozen-lockfile
 
       - name: Resynthesize after installing generator updates
-        if: inputs.projen
+        if: inputs.projen && !inputs.dagger
         run: pnpm projen
 
       - name: Refresh generated dependency lockfile
-        if: inputs.projen
+        if: inputs.projen && !inputs.dagger
         run: pnpm install --no-frozen-lockfile
 
       - name: Set up uv
-        if: inputs.uv
+        if: inputs.uv && !inputs.dagger
         uses: astral-sh/setup-uv@v10.3.0
 
       - name: Refresh uv lockfile
-        if: inputs.uv
+        if: inputs.uv && !inputs.dagger
         run: uv lock
 
       - name: Verify uv lockfile
-        if: inputs.uv
+        if: inputs.uv && !inputs.dagger
         run: uv lock --check
+
+      - name: Resolve Dagger version
+        id: dagger-version
+        if: inputs.dagger && !inputs.dagger-version
+        uses: langri-sha/github/actions/dagger-version@v0.28.0
+
+      - name: Set up Dagger
+        if: inputs.dagger
+        uses: dagger/dagger-for-github@v8.4.1
+        with:
+          version: ${{ inputs.dagger-version || steps.dagger-version.outputs.version }}
+
+      - name: Apply ESLint and Prettier fixes with Dagger
+        if: inputs.dagger && (inputs.eslint || inputs.prettier)
+        run: dagger call -y ci fix
+
+      - name: Update Vitest snapshots with Dagger
+        if: inputs.dagger && inputs.vitest
+        run: dagger call -y ci snapshots
+
+      - name: Synthesize projen with Dagger
+        if: inputs.dagger && inputs.projen
+        run: dagger generate -y ci/projen
+
+      - name: Refresh uv lockfiles with Dagger
+        if: inputs.dagger && inputs.uv
+        run: dagger generate -y uv
 
       - name: Stage generated changes
         if: inputs.beachball
