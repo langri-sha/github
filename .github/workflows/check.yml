@@ -16,12 +16,14 @@ on:
         description: >-
           Run `dagger check` in place of the Lint and Vitest jobs, and the
           post-upgrade fixes through Dagger, with the engine version the Dagger
-          modules pin, or `dagger-version`. The other inputs then only pick the
-          fixes: `eslint` and `prettier` call `ci fix`, `vitest` calls `ci
-          snapshots`, `projen` runs the `ci/projen` generator, `packages` the
-          `ci/packages` one, and `uv` the `uv` module's, one at a time. The
-          workspace installs `github.com/langri-sha/dagger/ci` at v1.2.0 or
-          later as `ci`, and `github.com/dagger/python/uv` as `uv` for `uv`.
+          modules pin, or `dagger-version`. The post-upgrade job first loads
+          every module, so `dagger.lock` gains the refs an update moved. The
+          other inputs then only pick the fixes: `eslint` and `prettier` call
+          `ci fix`, `vitest` calls `ci snapshots`, `projen` runs the `ci/projen`
+          generator, `packages` the `ci/packages` one, and `uv` the `uv`
+          module's, one at a time. The workspace installs
+          `github.com/langri-sha/dagger/ci` at v1.2.0 or later as `ci`, and
+          `github.com/dagger/python/uv` as `uv` for `uv`.
         type: boolean
         default: false
       runs-on:
@@ -182,6 +184,10 @@ jobs:
         uses: dagger/dagger-for-github@v8.4.1
         with:
           version: ${{ inputs.dagger-version || steps.dagger-version.outputs.version }}
+
+      - name: Refresh dagger.lock
+        if: inputs.dagger
+        run: dagger check -l
 
       - name: Apply ESLint and Prettier fixes with Dagger
         if: inputs.dagger && (inputs.eslint || inputs.prettier)
