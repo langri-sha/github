@@ -43,7 +43,7 @@ action runs [`merge-base.sh`](merge-base.sh), and so can you, anywhere in a
 clone with an `origin` remote:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/langri-sha/github/v0.27.0/actions/merge-base/merge-base.sh | bash
+curl -fsSL https://raw.githubusercontent.com/langri-sha/github/v0.28.0/actions/merge-base/merge-base.sh | bash
 ```
 
 Use the tag your workflows pin `check.yml` to. It takes the base branch as its
