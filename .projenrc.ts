@@ -51,4 +51,6 @@ project.package?.addField('private', true)
 
 project.tryFindObjectFile('tsconfig.json')?.addDeletionOverride('files')
 
+project.gitignore.exclude('/throwaway/')
+
 project.synth()
