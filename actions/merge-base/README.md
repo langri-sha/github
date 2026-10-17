@@ -12,8 +12,9 @@ steps:
   - uses: langri-sha/github/actions/merge-base@v0
 ```
 
-The change is a pull request's head on its merge commit, and `HEAD` otherwise.
-`base` defaults to the pull request's base branch, or else the default branch.
+The change is a pull request's head on its merge commit, and `HEAD` otherwise,
+with the working tree's uncommitted changes on top. `base` defaults to the pull
+request's base branch, or else the default branch.
 
 It writes three files to `.merge-base/` at the repository root, which the
 [`beachball`](https://github.com/langri-sha/dagger/tree/main/beachball) Dagger
@@ -48,5 +49,5 @@ curl -fsSL https://raw.githubusercontent.com/langri-sha/github/v0.28.0/actions/m
 
 Use the tag your workflows pin `check.yml` to. It takes the base branch as its
 argument (`bash -s -- main`), or else asks `origin` for its default branch. It
-compares `HEAD`, so uncommitted changes don't count: commit first, and run it
-again after each commit. Git should ignore `/.merge-base/`.
+counts uncommitted changes, so run it again after each change. Git should ignore
+`/.merge-base/`.
