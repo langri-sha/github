@@ -269,6 +269,9 @@ jobs:
     permissions:
       contents: write
       id-token: write
+    env:
+      PATCH: diff
+      MESSAGE: 'chore(deps): Apply upgrade changes'
 
     steps:
       - name: Choose where the App credentials come from
@@ -331,7 +334,7 @@ jobs:
       - name: Download diff
         uses: actions/download-artifact@v8
         with:
-          name: diff
+          name: ${{ env.PATCH }}
 
       - name: Reject unsafe paths in patch
         run: |
@@ -357,7 +360,7 @@ jobs:
         run: |
           git apply .diff.patch
           git add .
-          git commit -m "chore(deps): Apply upgrade changes"
+          git commit -m "$MESSAGE"
           git push origin "$HEAD_REF"
 
   lint:
