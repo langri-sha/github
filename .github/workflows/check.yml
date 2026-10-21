@@ -19,9 +19,9 @@ on:
           modules pin, or `dagger-version`. The post-upgrade job first loads
           every module, so `dagger.lock` gains the refs an update moved. The
           other inputs then only pick the fixes: `eslint` and `prettier` call
-          `ci fix`, `vitest` calls `ci snapshots`, `projen` runs the `ci/projen`
-          generator, `packages` the `ci/packages` one, and `uv` the `uv`
-          module's, one at a time. The workspace installs
+          `ci fix`, `vitest` calls `ci snapshots`, `projen` runs the `projen`
+          module's generator or `ci/projen`, `packages` the `ci/packages` one,
+          and `uv` the `uv` module's, one at a time. The workspace installs
           `github.com/langri-sha/dagger/ci` at v1.2.0 or later as `ci`, and
           `github.com/dagger/python/uv` as `uv` for `uv`. On Renovate and
           Dependabot pull requests, the Dagger job then commits what its checks
@@ -79,7 +79,11 @@ on:
         type: boolean
         default: false
       projen:
-        description: Run projen checks.
+        description: >-
+          Run projen checks. With `dagger`, the post-upgrade job synthesizes
+          with the `projen/synth` generator when the workspace installs
+          `github.com/langri-sha/dagger/projen` at v1.5.0 or later as `projen`,
+          and with `ci/projen` otherwise.
         type: boolean
         default: false
       uv:
@@ -201,7 +205,14 @@ jobs:
 
       - name: Synthesize projen with Dagger
         if: inputs.dagger && inputs.projen
-        run: dagger generate -y ci/projen
+        run: |
+          generators=$(dagger generate -l --require-load -f link projen)
+
+          if grep -qE '[?&]generator=projen/synth$' <<< "$generators"; then
+            dagger generate -y projen
+          else
+            dagger generate -y ci/projen
+          fi
 
       - name: Sort and fix the package manifests with Dagger
         if: inputs.dagger && inputs.packages
