@@ -85,7 +85,7 @@ on:
           `github.com/langri-sha/dagger/projen` at v1.5.0 or later as `projen`,
           and with `ci/projen` otherwise. A workspace that installs both skips
           the latter with `skip = ["projen"]` under `[modules.ci.generate]`, or
-          the job fails.
+          the job fails, as it does when the workspace has neither.
         type: boolean
         default: false
       uv:
@@ -219,8 +219,11 @@ jobs:
             exit 1
           elif has_generator projen/synth; then
             dagger generate -y projen
-          else
+          elif has_generator ci/projen; then
             dagger generate -y ci/projen
+          else
+            echo '::error::The workspace has neither projen/synth nor ci/projen to synthesize projen with.'
+            exit 1
           fi
 
       - name: Sort and fix the package manifests with Dagger
