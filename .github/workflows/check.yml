@@ -83,7 +83,9 @@ on:
           Run projen checks. With `dagger`, the post-upgrade job synthesizes
           with the `projen/synth` generator when the workspace installs
           `github.com/langri-sha/dagger/projen` at v1.5.0 or later as `projen`,
-          and with `ci/projen` otherwise.
+          and with `ci/projen` otherwise. A workspace that installs both skips
+          the latter with `skip = ["projen"]` under `[modules.ci.generate]`, or
+          the job fails.
         type: boolean
         default: false
       uv:
@@ -206,9 +208,16 @@ jobs:
       - name: Synthesize projen with Dagger
         if: inputs.dagger && inputs.projen
         run: |
-          generators=$(dagger generate -l --require-load -f link projen)
+          generators=$(dagger generate -l --require-load -f link projen ci/projen)
 
-          if grep -qE '[?&]generator=projen/synth$' <<< "$generators"; then
+          has_generator() {
+            grep -qE "[?&]generator=$1\$" <<< "$generators"
+          }
+
+          if has_generator projen/synth && has_generator ci/projen; then
+            echo '::error::The workspace runs both projen/synth and ci/projen. Skip the latter with [modules.ci.generate] skip = ["projen"] in dagger.toml.'
+            exit 1
+          elif has_generator projen/synth; then
             dagger generate -y projen
           else
             dagger generate -y ci/projen
