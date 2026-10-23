@@ -10,7 +10,7 @@ const project = new Project({
     homepage: 'https://github.com/langri-sha/github/#readme',
     license: 'MIT',
     licensed: true,
-    minNodeVersion: '20.0.0',
+    minNodeVersion: '24.22.1',
     repository: 'langri-sha/github',
 
     type: 'module',
