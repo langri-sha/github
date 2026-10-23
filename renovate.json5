@@ -19,7 +19,7 @@
     {
       description: 'Keep Node.js typings on the major supported by the runtime',
       matchPackageNames: ['@types/node'],
-      allowedVersions: '^20',
+      allowedVersions: '^24',
     },
     {
       description: 'Versions owned by @langri-sha/projen-project. Declare the dependency in `.projenrc.ts` to manage it here instead',
