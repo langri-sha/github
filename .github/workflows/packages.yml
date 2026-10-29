@@ -127,6 +127,7 @@ jobs:
           scope: ${{ inputs.scope }}
 
       - name: Upgrade npm for OIDC trusted publishing
+        if: needs.mode.outputs.changesets != 'true'
         run: npm install -g npm@11 # npm 12 array-wraps `npm show --json`, breaking beachball 2.65.5's registry read; 11.x still supports OIDC trusted publishing (>=11.5.1)
 
       - name: Configure Git user
@@ -140,9 +141,11 @@ jobs:
           git config user.email "${BOT_ID}+${BOT_NAME}@users.noreply.github.com"
 
       - name: Build composite projects
+        if: needs.mode.outputs.changesets != 'true'
         run: pnpm tsc --build .
 
       - name: Publish
+        if: needs.mode.outputs.changesets != 'true'
         run: |
           pnpm beachball publish \
             --access public \
@@ -151,7 +154,7 @@ jobs:
             --yes
 
       - name: Tag published packages
-        if: inputs.tag-template
+        if: needs.mode.outputs.changesets != 'true' && inputs.tag-template
         env:
           REF: origin/${{ github.event.repository.default_branch }}
           TEMPLATE: ${{ inputs.tag-template }}
