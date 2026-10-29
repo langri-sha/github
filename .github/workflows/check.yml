@@ -506,8 +506,15 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Find merge base for Beachball
-        if: inputs.beachball
+      - name: Look for the Changesets module
+        id: changesets
+        run: |
+          if grep -qs '^\[modules\.changesets\]' dagger.toml; then
+            echo 'listed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Find merge base
+        if: inputs.beachball || steps.changesets.outputs.listed == 'true'
         uses: langri-sha/github/actions/merge-base@v0.31.0
 
       - name: Resolve Dagger version
