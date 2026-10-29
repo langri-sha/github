@@ -73,12 +73,22 @@ off Beachball's `gitTags` and set `tag-template`, e.g. `v{version}`. Set
 `github-releases: true` to also create a GitHub release for each published
 version.
 
+A repository with a `.changeset/config.json` is released with
+[Changesets](https://github.com/changesets/changesets) instead, which ignores
+`github-releases` and `tag-template`. Call the workflow on a push to `main`; it
+does nothing on any other ref. While change files are pending, the GitHub App
+keeps a `Version Packages` pull request open, so CI runs on it. When that pull
+request merges, the workflow runs `changeset tag`, pushes the `vX.Y.Z` tag and
+creates a GitHub release with generated notes. A private package needs
+`privatePackages: { version: true, tag: true }` in the config, and the App needs
+`contents` and `pull requests` write access.
+
 ### App credentials
 
 Both workflows mint a GitHub App token: `check.yml` to push Renovate's
-post-upgrade changes, `packages.yml` for the release commit and its tags. Pass
-the App's client ID and private key as the `APP_CLIENT_ID` and `APP_PRIVATE_KEY`
-secrets, which `secrets: inherit` covers.
+post-upgrade changes, `packages.yml` for the release commit or version pull
+request and its tags. Pass the App's client ID and private key as the
+`APP_CLIENT_ID` and `APP_PRIVATE_KEY` secrets, which `secrets: inherit` covers.
 
 A repository that stores no App credentials can have the workflow read them
 instead, keeping nothing secret in GitHub. Grant the calling job
