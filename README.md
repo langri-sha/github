@@ -43,8 +43,11 @@ With `dagger` on, `dagger check` replaces the lint and test jobs, and the other
 check inputs only choose which fixes the Renovate post-upgrade job applies. With
 `beachball` on as well, the Dagger job first runs
 [`actions/merge-base`](actions/merge-base/), which hands the `beachball` module
-the merge base and the changed paths. To show the trace link on commits and pull
-requests, see [`actions/posthog-trace-status`](actions/posthog-trace-status/).
+the merge base and the changed paths. A workspace that lists the `changesets`
+module in `dagger.toml` gets the same, and its post-upgrade job writes an empty
+change file for Renovate's pull requests. To show the trace link on commits and
+pull requests, see
+[`actions/posthog-trace-status`](actions/posthog-trace-status/).
 
 ### `packages.yml`
 

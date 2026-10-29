@@ -21,7 +21,11 @@ on:
           other inputs then only pick the fixes: `eslint` and `prettier` call
           `ci fix`, `vitest` calls `ci snapshots`, `projen` runs the `projen`
           module's generator or `ci/projen`, `packages` the `ci/packages` one,
-          and `uv` the `uv` module's, one at a time. The workspace installs
+          and `uv` the `uv` module's, one at a time. A workspace that lists
+          `github.com/langri-sha/dagger/changesets` as `changesets` gets the
+          merge base and the changed paths handed to the Dagger job first, and
+          its post-upgrade job has the module write an empty change file. The
+          workspace installs
           `github.com/langri-sha/dagger/ci` at v1.2.0 or later as `ci`, and
           `github.com/dagger/python/uv` as `uv` for `uv`. On Renovate and
           Dependabot pull requests, the Dagger job then commits what its checks
@@ -263,6 +267,24 @@ jobs:
           TITLE: ${{ github.event.pull_request.title }}
         run: |
           dagger call -y beachball change --message "$TITLE"
+          rm -r .merge-base
+
+      - name: Look for the Changesets module
+        id: changesets
+        if: inputs.dagger
+        run: |
+          if grep -qs '^\[modules\.changesets\]' dagger.toml; then
+            echo 'listed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Find merge base for Changesets
+        if: steps.changesets.outputs.listed == 'true'
+        uses: langri-sha/github/actions/merge-base@683f011927eadcc5ed65f78d4596d2b29a670144
+
+      - name: Create Changesets change files with Dagger
+        if: steps.changesets.outputs.listed == 'true'
+        run: |
+          dagger generate -y changesets
           rm -r .merge-base
 
       - name: Check for Git changes
