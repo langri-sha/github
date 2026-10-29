@@ -8,7 +8,9 @@ change files.
 ## Layout
 
 - `.github/workflows/check.yml`, `packages.yml` and `debug.yml` are reusable
-  workflows (`on: workflow_call`) for other repositories.
+  workflows (`on: workflow_call`) for other repositories. `packages.yml`
+  releases with Beachball, or with Changesets when the repository has
+  `.changeset/config.json`.
 - `.github/workflows/workspace.yml` is this repository's CI. It calls the local
   `./.github/workflows/check.yml`, so a change to `check.yml` runs on its own
   pull request.
