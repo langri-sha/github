@@ -34,7 +34,6 @@ jobs:
       contents: read
     outputs:
       changesets: ${{ steps.detect.outputs.changesets }}
-      idle: ${{ steps.detect.outputs.idle }}
     steps:
       - name: Detect Changesets
         id: detect
@@ -45,8 +44,9 @@ jobs:
           if error=$(gh api "repos/$GITHUB_REPOSITORY/contents/.changeset/config.json?ref=$GITHUB_SHA" --silent 2>&1); then
             echo 'changesets=true' >> "$GITHUB_OUTPUT"
 
-            if [[ $GITHUB_EVENT_NAME != push || $GITHUB_REF != "$DEFAULT_REF" ]]; then
-              echo 'idle=true' >> "$GITHUB_OUTPUT"
+            if [[ $GITHUB_REF != "$DEFAULT_REF" ]]; then
+              echo "::error::Changesets releases run on the default branch, not on $GITHUB_REF."
+              exit 1
             fi
           elif [[ $error != *'HTTP 404'* ]]; then
             echo "::error::$error"
@@ -56,7 +56,6 @@ jobs:
   publish:
     name: Publish
     needs: [mode]
-    if: needs.mode.outputs.idle != 'true'
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     permissions:
