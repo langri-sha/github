@@ -199,7 +199,7 @@ jobs:
             exit 0
           fi
 
-          pnpm changeset version
+          pnpm exec changeset version
           git add --all
           git commit -m 'Release packages'
           git push origin "HEAD:refs/heads/$DEFAULT_BRANCH"
@@ -208,7 +208,7 @@ jobs:
       - name: Tag released versions
         if: steps.version.outputs.released == 'true'
         run: |
-          pnpm changeset tag
+          pnpm exec changeset tag
 
           mapfile -t tags < <(git tag --points-at HEAD)
           if (( ${#tags[@]} )); then
