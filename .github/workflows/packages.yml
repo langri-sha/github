@@ -27,8 +27,36 @@ on:
         required: false
 
 jobs:
+  mode:
+    name: Mode
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      changesets: ${{ steps.detect.outputs.changesets }}
+      idle: ${{ steps.detect.outputs.idle }}
+    steps:
+      - name: Detect Changesets
+        id: detect
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEFAULT_REF: refs/heads/${{ github.event.repository.default_branch }}
+        run: |
+          if error=$(gh api "repos/$GITHUB_REPOSITORY/contents/.changeset/config.json?ref=$GITHUB_SHA" --silent 2>&1); then
+            echo 'changesets=true' >> "$GITHUB_OUTPUT"
+
+            if [[ $GITHUB_EVENT_NAME != push || $GITHUB_REF != "$DEFAULT_REF" ]]; then
+              echo 'idle=true' >> "$GITHUB_OUTPUT"
+            fi
+          elif [[ $error != *'HTTP 404'* ]]; then
+            echo "::error::$error"
+            exit 1
+          fi
+
   publish:
     name: Publish
+    needs: [mode]
+    if: needs.mode.outputs.idle != 'true'
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     permissions:
