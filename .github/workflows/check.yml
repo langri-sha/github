@@ -424,7 +424,7 @@ jobs:
     name: Lint
     runs-on: ${{ inputs.runs-on }}
     needs: [commit-upgrade-changes]
-    if: always() && !inputs.dagger
+    if: ${{ !cancelled() && !inputs.dagger }}
     permissions:
       contents: read
 
@@ -495,7 +495,7 @@ jobs:
     name: Vitest
     runs-on: ${{ inputs.runs-on }}
     needs: [commit-upgrade-changes]
-    if: always() && inputs.vitest && !inputs.dagger
+    if: ${{ !cancelled() && inputs.vitest && !inputs.dagger }}
     permissions:
       contents: read
 
@@ -515,7 +515,7 @@ jobs:
     name: Dagger
     runs-on: ${{ inputs.runs-on }}
     needs: [commit-upgrade-changes]
-    if: always() && inputs.dagger && needs.commit-upgrade-changes.result != 'success'
+    if: ${{ !cancelled() && inputs.dagger && needs.commit-upgrade-changes.result != 'success' }}
     permissions:
       contents: read
     outputs:
