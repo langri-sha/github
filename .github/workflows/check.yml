@@ -176,7 +176,7 @@ jobs:
 
       - name: Set up uv
         if: inputs.uv && !inputs.dagger
-        uses: astral-sh/setup-uv@v10.3.2
+        uses: astral-sh/setup-uv@v10.3.3
 
       - name: Refresh uv lockfile
         if: inputs.uv && !inputs.dagger
