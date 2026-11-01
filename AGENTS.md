@@ -2,8 +2,8 @@
 
 Reusable GitHub Actions workflows and composite actions that the `langri-sha`
 repositories call, plus the fleet's `CONTRIBUTING.md` and documentation
-standard. Nothing here is published to npm, so there is no Beachball and no
-change files.
+standard. Nothing here is published to npm, so there is no Beachball. Releases
+are versioned with Changesets.
 
 ## Layout
 
@@ -15,6 +15,8 @@ change files.
 - `.github/workflows/workspace.yml` is this repository's CI. It calls the local
   `./.github/workflows/check.yml`, so a change to `check.yml` runs on its own
   pull request.
+- `.github/workflows/workspace-release.yml` is this repository's release. It
+  calls the local `./.github/workflows/packages.yml` on dispatch.
 - `.github/workflows/actions.yml` tests the actions named in its `paths` filter,
   and runs only when their files change. The other actions have no tests.
 - `actions/<name>/action.yml` are composite actions.
@@ -38,6 +40,9 @@ pnpm tsc --build .             # type check
 dagger check                   # the checks, as CI runs them
 ```
 
+The `changesets` checks of `dagger check` fail locally without the `.merge-base`
+that `actions/merge-base` writes; run its `merge-base.sh` first.
+
 CI runs the same checks with `dagger check` and the modules in `dagger.toml`,
 and also checks that the package manifests are sorted and fixed. It fails when
 synthesized files drift from `.projenrc.ts`, and on Renovate pull requests it
@@ -54,5 +59,13 @@ those pins here.
 
 One repository-wide semver tag, `vX.Y.Z`, on `main` covers every workflow and
 action. Consumers pin it, e.g. `check.yml@vX.Y.Z`, and Renovate keeps the pins
-current. No workflow cuts a release: tag `main` and publish a GitHub release
-with generated notes, `gh release create vX.Y.Z --generate-notes`.
+current.
+
+Every pull request carries a change file, from `pnpm changeset`. Changes that
+release nothing, such as dependency and tooling updates, get an empty one
+(`pnpm exec changeset --empty`).
+
+A release is cut by dispatching the Workspace release workflow: it consumes the
+change files, commits the version bump and changelog to `main`, tags `vX.Y.Z`
+and creates the GitHub release. Never tag by hand: a stray tag makes
+`changeset tag` skip the version, so the release commit gets no tag.

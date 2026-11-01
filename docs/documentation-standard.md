@@ -109,9 +109,11 @@ Say what triggers a release and how versions are tagged.
   publishes on merge: the Release workflow (`publish.yml`) runs by hand, tags
   each version `v<version>` and creates a GitHub release. Name any exceptions,
   such as `projen` creating no tags or releases.
-- Tagged repositories, like this one: one `vX.Y.Z` tag on `main` covers the
-  repository, consumers pin it, and each tag gets a GitHub release with
-  generated notes (`gh release create vX.Y.Z --generate-notes`).
+- Repositories versioned with Changesets: one `vX.Y.Z` tag on `main` covers the
+  repository and consumers pin it. Every pull request carries a change file,
+  empty for tooling and dependency changes. Nothing releases on merge: the
+  release workflow runs by hand, commits the version bump, tags it and creates
+  the GitHub release. Never tag by hand.
 - Anything else, such as a site deployed by publishing a release or a provider
   released through GoReleaser: state the trigger in one sentence, or link the
   `CONTRIBUTING.md` that has the steps, such as
