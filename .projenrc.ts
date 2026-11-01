@@ -23,6 +23,9 @@ const project = new Project({
       attribution: { commit: '', pr: '', sessionUrl: false },
     },
   },
+  changesets: {
+    config: { privatePackages: { version: true, tag: true } },
+  },
   codeowners: {
     '*': '@langri-sha',
   },
