@@ -68,6 +68,11 @@ jobs:
 npm publishing uses trusted publishing, so no npm token is needed. The GitHub
 App pushes the release commit and tags; `secrets: inherit` works too.
 
+Both jobs run on `ubuntu-latest`. Set `runs-on` to run them on another runner;
+the publish job reads the App's key, so that runner sees it. npm trusted
+publishing doesn't support self-hosted runners, so a Beachball release needs a
+GitHub-hosted one; Changesets releases publish nothing to npm.
+
 Beachball tags each version as `<name>_v<version>`. To name tags yourself, turn
 off Beachball's `gitTags` and set `tag-template`, e.g. `v{version}`. Set
 `github-releases: true` to also create a GitHub release for each published
