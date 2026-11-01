@@ -12,6 +12,14 @@ on:
       registry-url:
         type: string
         default: https://registry.npmjs.org
+      runs-on:
+        description: >-
+          Runner label for every job, e.g. a self-hosted scale set. The publish
+          job reads the GitHub App's key, so a caller that sets this runs that
+          key on its own runner. npm trusted publishing doesn't support
+          self-hosted runners, so a Beachball release needs a GitHub-hosted one.
+        type: string
+        default: ubuntu-latest
       scope:
         type: string
         required: false
@@ -29,7 +37,7 @@ on:
 jobs:
   mode:
     name: Mode
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     permissions:
       contents: read
     outputs:
@@ -56,7 +64,7 @@ jobs:
   publish:
     name: Publish
     needs: [mode]
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs-on }}
     environment: ${{ inputs.environment }}
     permissions:
       id-token: write
