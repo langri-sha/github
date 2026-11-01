@@ -1,0 +1,11 @@
+name: Workspace release
+
+on: workflow_dispatch
+
+jobs:
+  release:
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/packages.yml
+    secrets: inherit
