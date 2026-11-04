@@ -76,17 +76,19 @@ GitHub-hosted one; Changesets releases publish nothing to npm.
 Beachball tags each version as `<name>_v<version>`. To name tags yourself, turn
 off Beachball's `gitTags` and set `tag-template`, e.g. `v{version}`. Set
 `github-releases: true` to also create a GitHub release for each published
-version.
+version. Set `build-packages: true` to run each package's `prepublishOnly`
+before Beachball publishes any of them, for packages that build against their
+siblings' output, such as jsii assemblies.
 
 A repository with a `.changeset/config.json` is released with
 [Changesets](https://github.com/changesets/changesets) instead, which ignores
-`github-releases` and `tag-template`. Call the workflow on a manual dispatch,
-like the Beachball one; it fails on any branch but the default one. With change
-files pending, a run versions the packages, commits the result to the default
-branch as `Release packages`, pushes the `vX.Y.Z` tags and creates a GitHub
-release with generated notes. With none, it logs that and does nothing. A
-private package needs `privatePackages: { version: true, tag: true }` in the
-config, and the App needs to push to the default branch.
+`build-packages`, `github-releases` and `tag-template`. Call the workflow on a
+manual dispatch, like the Beachball one; it fails on any branch but the default
+one. With change files pending, a run versions the packages, commits the result
+to the default branch as `Release packages`, pushes the `vX.Y.Z` tags and
+creates a GitHub release with generated notes. With none, it logs that and does
+nothing. A private package needs `privatePackages: { version: true, tag: true }`
+in the config, and the App needs to push to the default branch.
 
 ### App credentials
 
