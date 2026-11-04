@@ -3,6 +3,13 @@ name: Packages
 on:
   workflow_call:
     inputs:
+      build-packages:
+        description: >-
+          Run each package's prepublishOnly before Beachball publishes any of
+          them, for packages that build against their workspace siblings'
+          output, such as jsii assemblies.
+        type: boolean
+        default: false
       environment:
         type: string
         required: false
@@ -151,6 +158,10 @@ jobs:
       - name: Build composite projects
         if: needs.mode.outputs.changesets != 'true'
         run: pnpm tsc --build .
+
+      - name: Build packages
+        if: needs.mode.outputs.changesets != 'true' && inputs.build-packages
+        run: pnpm -r --if-present run prepublishOnly
 
       - name: Publish
         if: needs.mode.outputs.changesets != 'true'
