@@ -96,6 +96,16 @@ on:
         description: Refresh uv lockfiles after Projen synthesis.
         type: boolean
         default: false
+      generators:
+        description: >-
+          Names of the workspace's own Dagger generators, one per line, such
+          as `smoke` or `ci/packages`. With `dagger`, the post-upgrade job runs
+          each with `dagger generate -y`, in the order listed, after the
+          projen, packages and uv fixes and before the change files are
+          written, so what they regenerate gets one. Without `dagger`, nothing
+          runs.
+        type: string
+        default: ''
       vitest:
         description: Run Vitest checks.
         type: boolean
@@ -237,6 +247,32 @@ jobs:
       - name: Refresh uv lockfiles with Dagger
         if: inputs.dagger && inputs.uv
         run: dagger generate -y uv
+
+      - name: Run the workspace generators with Dagger
+        if: inputs.dagger && inputs.generators != ''
+        env:
+          GENERATORS: ${{ inputs.generators }}
+        run: |
+          while IFS= read -r generator || [ -n "$generator" ]; do
+            generator=${generator#"${generator%%[![:space:]]*}"}
+            generator=${generator%"${generator##*[![:space:]]}"}
+            [ -z "$generator" ] && continue
+            case $generator in
+              -*)
+                echo "::error::The generator name '$generator' starts with a dash."
+                exit 1
+                ;;
+              *[[:space:]]*)
+                echo "::error::The generator name '$generator' contains whitespace; list one per line."
+                exit 1
+                ;;
+            esac
+            if [ -z "$(dagger generate -l --require-load -f link "$generator" </dev/null)" ]; then
+              echo "::error::The workspace has no generator named '$generator'."
+              exit 1
+            fi
+            dagger generate -y --require-load "$generator" </dev/null
+          done <<< "$GENERATORS"
 
       - name: Stage generated changes
         if: inputs.beachball && !inputs.dagger

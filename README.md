@@ -32,6 +32,7 @@ jobs:
 | `packages`              | `false`                    | Validate `package.json` files                    |
 | `projen`                | `false`                    | Check that projen's output is up to date         |
 | `dagger`                | `false`                    | Run the repository's Dagger checks instead       |
+| `generators`            | `''`                       | Workspace Dagger generators, one per line        |
 | `runs-on`               | `ubuntu-latest`            | Runner label for every job                       |
 | `dagger-version`        | `''`                       | Dagger version, if it can't be read from modules |
 | `posthog-project-token` | `''`                       | Send Dagger traces to PostHog                    |
@@ -45,8 +46,11 @@ check inputs only choose which fixes the Renovate post-upgrade job applies. With
 [`actions/merge-base`](actions/merge-base/), which hands the `beachball` module
 the merge base and the changed paths. A workspace that lists the `changesets`
 module in `dagger.toml` gets the same, and its post-upgrade job writes an empty
-change file for Renovate's pull requests. To show the trace link on commits and
-pull requests, see
+change file for Renovate's pull requests. `generators` lists the workspace's own
+Dagger generators, one name per line. The post-upgrade job runs each with
+`dagger generate -y`, in that order, after the projen, packages and uv fixes and
+before the change files, so what they regenerate gets one. It does nothing
+without `dagger`. To show the trace link on commits and pull requests, see
 [`actions/posthog-trace-status`](actions/posthog-trace-status/).
 
 ### `packages.yml`
