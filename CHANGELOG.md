@@ -1,5 +1,11 @@
 # @langri-sha/github
 
+## 0.37.0
+
+### Minor Changes
+
+- da22abd: Add a generators input to the Check workflow.
+
 ## 0.36.0
 
 ### Minor Changes
