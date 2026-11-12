@@ -27,7 +27,7 @@ runs:
   steps:
     - name: Resolve version
       id: version
-      shell: python
+      shell: python3 {0}
       working-directory: ${{ inputs.working-directory || '.' }}
       run: |
         import os
