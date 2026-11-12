@@ -1,5 +1,11 @@
 # @langri-sha/github
 
+## 0.37.1
+
+### Patch Changes
+
+- 264e6ee: Run the dagger-version action with `python3`, so it works on runners without a `python` executable.
+
 ## 0.37.0
 
 ### Minor Changes
