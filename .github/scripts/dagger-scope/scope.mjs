@@ -7,14 +7,14 @@ const statuses = /^[ADMTUXB]$/
 function changedPaths(changes) {
   const records = changes.split('\0')
   if (records.pop() !== '' || records.length % 2 !== 0) {
-    throw new Error('Incomplete merge-base path list')
+    throw new Error('Incomplete changed path list')
   }
 
   const paths = new Set()
   for (let i = 0; i < records.length; i += 2) {
     const [status, path] = [records[i], records[i + 1]]
     if (!statuses.test(status) || !path) {
-      throw new Error('Invalid merge-base path record')
+      throw new Error('Invalid changed path record')
     }
     paths.add(path)
   }
