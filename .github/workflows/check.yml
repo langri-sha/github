@@ -46,6 +46,12 @@ on:
           has no module of its own and installs them all from git refs.
         type: string
         default: ''
+      dagger-scope:
+        description: >-
+          Scope Dagger checks on pull requests with the base commit's
+          ci/scope.json. The full suite runs if the scope cannot be resolved.
+        type: boolean
+        default: false
       posthog-host:
         description: PostHog ingestion host that Dagger traces are exported to.
         type: string
@@ -554,6 +560,11 @@ jobs:
     if: ${{ !cancelled() && inputs.dagger && needs.commit-upgrade-changes.result != 'success' }}
     permissions:
       contents: read
+    env:
+      SCOPE_DAGGER_CHECKS: >-
+        ${{ inputs.dagger-scope && github.event_name == 'pull_request' &&
+        github.event.pull_request.user.login != 'renovate[bot]' &&
+        github.event.pull_request.user.login != 'dependabot[bot]' }}
     outputs:
       posthog-trace-url: ${{ steps.trace.outputs.url }}
       lock-changed: ${{ steps.lock.outputs.changed }}
@@ -572,13 +583,75 @@ jobs:
           fi
 
       - name: Find merge base
-        if: inputs.beachball || steps.changesets.outputs.listed == 'true'
+        id: merge-base
+        if: >-
+          inputs.beachball || steps.changesets.outputs.listed == 'true' ||
+          env.SCOPE_DAGGER_CHECKS == 'true'
+        continue-on-error: ${{ !inputs.beachball && steps.changesets.outputs.listed != 'true' }}
         uses: langri-sha/github/actions/merge-base@v0.37.1
 
       - name: Resolve Dagger version
         id: dagger-version
         if: ${{ !inputs.dagger-version }}
         uses: langri-sha/github/actions/dagger-version@v0.37.1
+
+      - name: Set up Node.js for scoping
+        id: scope-node
+        if: >-
+          env.SCOPE_DAGGER_CHECKS == 'true' &&
+          steps.merge-base.outcome == 'success' &&
+          steps.merge-base.outputs.head == github.event.pull_request.head.sha
+        continue-on-error: true
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Set up Dagger for scoping
+        id: scope-dagger
+        if: steps.scope-node.outcome == 'success'
+        continue-on-error: true
+        uses: dagger/dagger-for-github@v8.4.1
+        with:
+          version: ${{ inputs.dagger-version || steps.dagger-version.outputs.version }}
+
+      - name: Scope Dagger checks
+        id: scope
+        if: steps.scope-dagger.outcome == 'success'
+        continue-on-error: true
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          TOKEN: ${{ github.token }}
+          WORKFLOW_REPOSITORY: ${{ job.workflow_repository }}
+          WORKFLOW_SHA: ${{ job.workflow_sha }}
+        run: |
+          set -euo pipefail
+
+          scope=$(mktemp -d)
+          trap 'rm -rf "$scope"' EXIT
+
+          read_file() {
+            local repo=$1 ref=$2 path=$3
+            curl --fail --silent --show-error \
+              --header "Authorization: Bearer $TOKEN" \
+              --header 'Accept: application/vnd.github.raw+json' \
+              "$GITHUB_API_URL/repos/$repo/contents/$path?ref=$ref"
+          }
+
+          read_file "$GITHUB_REPOSITORY" "$BASE_SHA" ci/scope.json > "$scope/rules.json"
+          for file in package.json package-lock.json scope.mjs; do
+            read_file "$WORKFLOW_REPOSITORY" "$WORKFLOW_SHA" ".github/scripts/dagger-scope/$file" > "$scope/$file"
+          done
+
+          unset TOKEN
+          (cd "$scope" && npm ci --ignore-scripts --no-audit --no-fund)
+          dagger check -l -f link > "$scope/checks"
+          args=$(node "$scope/scope.mjs" "$scope/rules.json" .merge-base/changes "$scope/checks")
+          echo "args=$args" >> "$GITHUB_OUTPUT"
+
+      - name: Report unavailable scope
+        if: env.SCOPE_DAGGER_CHECKS == 'true' && steps.scope.outcome != 'success'
+        run: echo 'Dagger scope unavailable. Running all checks.' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Record start time
         id: start
@@ -597,6 +670,7 @@ jobs:
         with:
           version: ${{ inputs.dagger-version || steps.dagger-version.outputs.version }}
           verb: check
+          args: ${{ steps.scope.outcome == 'success' && steps.scope.outputs.args || '' }}
 
       - name: Find what the checks pinned
         id: lock
