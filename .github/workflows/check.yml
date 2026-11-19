@@ -604,7 +604,6 @@ jobs:
       - name: Set up Dagger for scoping
         id: scope-dagger
         if: steps.scope-node.outcome == 'success'
-        continue-on-error: true
         uses: dagger/dagger-for-github@v8.4.1
         with:
           version: ${{ inputs.dagger-version || steps.dagger-version.outputs.version }}
@@ -661,8 +660,10 @@ jobs:
         run: echo "time=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
 
       - name: Check
+        if: steps.scope-dagger.outcome != 'success'
         uses: dagger/dagger-for-github@v8.4.1
-        env:
+        env: &dagger-check-env
+          DAGGER_CHECK_ARGS: ${{ steps.scope.outcome == 'success' && steps.scope.outputs.args || '' }}
           OTEL_EXPORTER_OTLP_TRACES_PROTOCOL: http/protobuf
           OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: ${{ inputs.posthog-project-token && format('{0}/i/v1/traces', inputs.posthog-host) || '' }}
           # Dagger's exporter only reads the generic headers variable and
@@ -672,7 +673,13 @@ jobs:
         with:
           version: ${{ inputs.dagger-version || steps.dagger-version.outputs.version }}
           verb: check
-          args: ${{ steps.scope.outcome == 'success' && steps.scope.outputs.args || '' }}
+
+      - name: Check after scoping
+        if: steps.scope-dagger.outcome == 'success'
+        env: *dagger-check-env
+        run: |
+          read -r -a args <<< "$DAGGER_CHECK_ARGS"
+          dagger --progress plain check "${args[@]}"
 
       - name: Find what the checks pinned
         id: lock
