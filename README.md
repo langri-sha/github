@@ -32,7 +32,7 @@ jobs:
 | `packages`              | `false`                    | Validate `package.json` files                    |
 | `projen`                | `false`                    | Check that projen's output is up to date         |
 | `dagger`                | `false`                    | Run the repository's Dagger checks instead       |
-| `dagger-scope`          | `false`                    | Select PR checks using `ci/scope.json`           |
+| `dagger-scope`          | `false`                    | Select PR checks using a scope manifest          |
 | `dagger-scope-always`   | `''`                       | Checks to run for every scoped change            |
 | `generators`            | `''`                       | Workspace Dagger generators, one per line        |
 | `runs-on`               | `ubuntu-latest`            | Runner label for every job                       |
@@ -55,11 +55,22 @@ before the change files, so what they regenerate gets one. It does nothing
 without `dagger`. To show the trace link on commits and pull requests, see
 [`actions/posthog-trace-status`](actions/posthog-trace-status/).
 
-Set `dagger-scope: true` with Dagger beta.28 or newer to limit PR checks using
-the tested merge commit's base rules. The [scope module] documents the rule
-format. Set `dagger-scope-always: lint` when lint should run for every change.
-Configured Beachball and Changesets checks are included in every scope. Pushes,
-dependency-upgrade PRs, and unresolved scopes run the full suite.
+Set `dagger-scope: true` with the Dagger beta.28 engine or newer to limit PR
+checks. Install the [scope module] as `scope` in `dagger.toml` and set
+`manifest` to the repository-relative path.
+
+```toml
+[modules.scope]
+source = "github.com/langri-sha/dagger/scope@<ref>"
+
+[modules.scope.settings]
+manifest = "ci/scope.json"
+```
+
+The workflow reads both `dagger.toml` and the manifest from the tested merge
+commit's first parent. Set `dagger-scope-always: lint` when lint should run for
+every change. Configured Beachball and Changesets checks are included in every
+scope. Pushes, dependency-upgrade PRs, and unresolved scopes run the full suite.
 
 [scope module]: https://github.com/langri-sha/dagger/tree/main/scope
 
