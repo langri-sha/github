@@ -617,22 +617,6 @@ jobs:
         run: |
           set -euo pipefail
 
-          if [[ "$GITHUB_REF" != refs/pull/*/merge ||
-                "$(git rev-parse HEAD)" != "$GITHUB_SHA" ||
-                "$(git rev-parse HEAD^2)" != "$HEAD_SHA" ]]; then
-            echo '::warning::The checkout does not match the expected PR merge commit.'
-            exit 1
-          fi
-
-          scope=$(mktemp -d)
-          trap 'rm -rf "$scope"' EXIT
-
-          base_sha=$(git rev-parse HEAD^1)
-          git diff --name-status --no-renames -z "$base_sha" HEAD -- > "$scope/changes"
-
-          git show "$base_sha:ci/scope.json" > "$scope/rules.json"
-          dagger check -l -f link > "$scope/checks"
-
           always=$SCOPE_ALWAYS
           if [[ "$SCOPE_BEACHBALL" == 'true' ]]; then
             always="${always:+$always,}beachball"
@@ -641,17 +625,11 @@ jobs:
             always="${always:+$always,}changesets"
           fi
 
-          options=()
-          if [[ -n "$always" ]]; then
-            options+=(--always="$always")
-          fi
+          scope=$(dagger -m github.com/langri-sha/dagger/scope@3f3cdfd65dbaf5b250fb4427b159a24dd2e7cd45 call resolve-merge \
+            --merge-sha="$GITHUB_SHA" --head-sha="$HEAD_SHA" --always="$always")
 
-          dagger -m github.com/langri-sha/dagger/scope@42367b7dc5c4623adaff8a0a29f7191b4b6833c7 call resolve \
-            --rules="$scope/rules.json" --changes="$scope/changes" \
-            --checks="$scope/checks" "${options[@]}" > "$scope/result.json"
-
-          jq -er '.summary' "$scope/result.json" >> "$GITHUB_STEP_SUMMARY"
-          jq -er '"args=" + (.args | join(" "))' "$scope/result.json" >> "$GITHUB_OUTPUT"
+          jq -er '.summary' <<<"$scope" >> "$GITHUB_STEP_SUMMARY"
+          jq -er '"args=" + (.args | join(" "))' <<<"$scope" >> "$GITHUB_OUTPUT"
 
       - name: Report unavailable scope
         if: env.SCOPE_DAGGER_CHECKS == 'true' && steps.scope.outcome != 'success'
