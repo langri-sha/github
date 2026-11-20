@@ -52,6 +52,12 @@ on:
           ci/scope.json. The full suite runs if the scope cannot be resolved.
         type: boolean
         default: false
+      dagger-scope-always:
+        description: >-
+          Comma-separated Dagger check names or modules to include in every
+          scoped run, for example lint.
+        type: string
+        default: ''
       posthog-host:
         description: PostHog ingestion host that Dagger traces are exported to.
         type: string
@@ -592,18 +598,9 @@ jobs:
         if: ${{ !inputs.dagger-version }}
         uses: langri-sha/github/actions/dagger-version@v0.37.1
 
-      - name: Set up Node.js for scoping
-        id: scope-node
-        if: env.SCOPE_DAGGER_CHECKS == 'true'
-        continue-on-error: true
-        uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-          package-manager-cache: false
-
       - name: Set up Dagger for scoping
         id: scope-dagger
-        if: steps.scope-node.outcome == 'success'
+        if: env.SCOPE_DAGGER_CHECKS == 'true'
         uses: dagger/dagger-for-github@v8.4.1
         with:
           version: ${{ inputs.dagger-version || steps.dagger-version.outputs.version }}
@@ -614,9 +611,7 @@ jobs:
         continue-on-error: true
         env:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          TOKEN: ${{ github.token }}
-          WORKFLOW_REPOSITORY: ${{ job.workflow_repository }}
-          WORKFLOW_SHA: ${{ job.workflow_sha }}
+          SCOPE_ALWAYS: ${{ inputs.dagger-scope-always }}
         run: |
           set -euo pipefail
 
@@ -633,24 +628,20 @@ jobs:
           base_sha=$(git rev-parse HEAD^1)
           git diff --name-status --no-renames -z "$base_sha" HEAD -- > "$scope/changes"
 
-          read_file() {
-            local repo=$1 ref=$2 path=$3
-            curl --fail --silent --show-error \
-              --header "Authorization: Bearer $TOKEN" \
-              --header 'Accept: application/vnd.github.raw+json' \
-              "$GITHUB_API_URL/repos/$repo/contents/$path?ref=$ref"
-          }
-
-          read_file "$GITHUB_REPOSITORY" "$base_sha" ci/scope.json > "$scope/rules.json"
-          for file in package.json package-lock.json scope.mjs; do
-            read_file "$WORKFLOW_REPOSITORY" "$WORKFLOW_SHA" ".github/scripts/dagger-scope/$file" > "$scope/$file"
-          done
-
-          unset TOKEN
-          (cd "$scope" && npm ci --ignore-scripts --no-audit --no-fund)
+          git show "$base_sha:ci/scope.json" > "$scope/rules.json"
           dagger check -l -f link > "$scope/checks"
-          args=$(node "$scope/scope.mjs" "$scope/rules.json" "$scope/changes" "$scope/checks")
-          echo "args=$args" >> "$GITHUB_OUTPUT"
+
+          options=()
+          if [[ -n "$SCOPE_ALWAYS" ]]; then
+            options+=(--always="$SCOPE_ALWAYS")
+          fi
+
+          dagger -m github.com/langri-sha/dagger/scope@42367b7dc5c4623adaff8a0a29f7191b4b6833c7 call resolve \
+            --rules="$scope/rules.json" --changes="$scope/changes" \
+            --checks="$scope/checks" "${options[@]}" > "$scope/result.json"
+
+          jq -er '.summary' "$scope/result.json" >> "$GITHUB_STEP_SUMMARY"
+          jq -er '"args=" + (.args | join(" "))' "$scope/result.json" >> "$GITHUB_OUTPUT"
 
       - name: Report unavailable scope
         if: env.SCOPE_DAGGER_CHECKS == 'true' && steps.scope.outcome != 'success'

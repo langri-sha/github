@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - .github/workflows/actions.yml
-      - .github/scripts/dagger-scope/**
       - actions/dagger-version/**
       - actions/github-release/**
       - actions/merge-base/**
@@ -14,37 +13,12 @@ on:
   pull_request:
     paths:
       - .github/workflows/actions.yml
-      - .github/scripts/dagger-scope/**
       - actions/dagger-version/**
       - actions/github-release/**
       - actions/merge-base/**
       - actions/posthog-trace-status/**
 
 jobs:
-  dagger-scope:
-    name: Dagger scope
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: '24'
-          package-manager-cache: false
-
-      - name: Test scope resolution
-        working-directory: .github/scripts/dagger-scope
-        run: |
-          npm ci --ignore-scripts --no-audit --no-fund
-          node --test scope.test.mjs
-
   dagger-version:
     name: Dagger version (${{ matrix.fixture }})
     runs-on: ubuntu-latest
