@@ -569,6 +569,7 @@ jobs:
     env:
       SCOPE_DAGGER_CHECKS: >-
         ${{ inputs.dagger-scope && github.event_name == 'pull_request' &&
+        github.ref == format('refs/pull/{0}/merge', github.event.pull_request.number) &&
         github.event.pull_request.user.login != 'renovate[bot]' &&
         github.event.pull_request.user.login != 'dependabot[bot]' }}
     outputs:
