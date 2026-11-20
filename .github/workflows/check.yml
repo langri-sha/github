@@ -626,7 +626,7 @@ jobs:
             always="${always:+$always,}changesets"
           fi
 
-          scope=$(dagger -m github.com/langri-sha/dagger/scope@3f3cdfd65dbaf5b250fb4427b159a24dd2e7cd45 call resolve-merge \
+          scope=$(dagger -m github.com/langri-sha/dagger/scope@d4b05f2646d30ce4c6bb9f58747c76970075c819 call resolve-merge \
             --merge-sha="$GITHUB_SHA" --head-sha="$HEAD_SHA" --always="$always")
 
           jq -er '.summary' <<<"$scope" >> "$GITHUB_STEP_SUMMARY"
