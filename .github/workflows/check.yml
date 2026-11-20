@@ -612,6 +612,8 @@ jobs:
         env:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           SCOPE_ALWAYS: ${{ inputs.dagger-scope-always }}
+          SCOPE_BEACHBALL: ${{ inputs.beachball }}
+          SCOPE_CHANGESETS: ${{ steps.changesets.outputs.listed }}
         run: |
           set -euo pipefail
 
@@ -631,9 +633,17 @@ jobs:
           git show "$base_sha:ci/scope.json" > "$scope/rules.json"
           dagger check -l -f link > "$scope/checks"
 
+          always=$SCOPE_ALWAYS
+          if [[ "$SCOPE_BEACHBALL" == 'true' ]]; then
+            always="${always:+$always,}beachball"
+          fi
+          if [[ "$SCOPE_CHANGESETS" == 'true' ]]; then
+            always="${always:+$always,}changesets"
+          fi
+
           options=()
-          if [[ -n "$SCOPE_ALWAYS" ]]; then
-            options+=(--always="$SCOPE_ALWAYS")
+          if [[ -n "$always" ]]; then
+            options+=(--always="$always")
           fi
 
           dagger -m github.com/langri-sha/dagger/scope@42367b7dc5c4623adaff8a0a29f7191b4b6833c7 call resolve \

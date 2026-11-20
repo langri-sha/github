@@ -58,7 +58,8 @@ without `dagger`. To show the trace link on commits and pull requests, see
 Set `dagger-scope: true` with Dagger beta.28 or newer to limit PR checks using
 the tested merge commit's base rules. The [scope module] documents the rule
 format. Set `dagger-scope-always: lint` when lint should run for every change.
-Pushes, dependency-upgrade PRs, and unresolved scopes run the full suite.
+Configured Beachball and Changesets checks are included in every scope. Pushes,
+dependency-upgrade PRs, and unresolved scopes run the full suite.
 
 [scope module]: https://github.com/langri-sha/dagger/tree/main/scope
 
