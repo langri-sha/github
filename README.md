@@ -32,6 +32,8 @@ jobs:
 | `packages`              | `false`                    | Validate `package.json` files                    |
 | `projen`                | `false`                    | Check that projen's output is up to date         |
 | `dagger`                | `false`                    | Run the repository's Dagger checks instead       |
+| `dagger-scope`          | `false`                    | Select PR checks using a scope manifest          |
+| `dagger-scope-always`   | `''`                       | Checks to run for every scoped change            |
 | `generators`            | `''`                       | Workspace Dagger generators, one per line        |
 | `runs-on`               | `ubuntu-latest`            | Runner label for every job                       |
 | `dagger-version`        | `''`                       | Dagger version, if it can't be read from modules |
@@ -52,6 +54,25 @@ Dagger generators, one name per line. The post-upgrade job runs each with
 before the change files, so what they regenerate gets one. It does nothing
 without `dagger`. To show the trace link on commits and pull requests, see
 [`actions/posthog-trace-status`](actions/posthog-trace-status/).
+
+Set `dagger-scope: true` with the Dagger beta.28 engine or newer to limit PR
+checks. Install the [scope module] as `scope` in `dagger.toml` and set
+`manifest` to the repository-relative path.
+
+```toml
+[modules.scope]
+source = "github.com/langri-sha/dagger/scope@<ref>"
+
+[modules.scope.settings]
+manifest = "ci/scope.json"
+```
+
+The workflow reads both `dagger.toml` and the manifest from the tested merge
+commit's first parent. Set `dagger-scope-always: lint` when lint should run for
+every change. Configured Beachball and Changesets checks are included in every
+scope. Pushes, dependency-upgrade PRs, and unresolved scopes run the full suite.
+
+[scope module]: https://github.com/langri-sha/dagger/tree/main/scope
 
 ### `packages.yml`
 
