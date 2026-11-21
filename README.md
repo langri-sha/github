@@ -32,7 +32,7 @@ jobs:
 | `packages`              | `false`                    | Validate `package.json` files                    |
 | `projen`                | `false`                    | Check that projen's output is up to date         |
 | `dagger`                | `false`                    | Run the repository's Dagger checks instead       |
-| `dagger-scope`          | `false`                    | Select PR checks using a scope manifest          |
+| `dagger-scope`          | `false`                    | Select PR checks using rules in `dagger.toml`    |
 | `dagger-scope-always`   | `''`                       | Checks to run for every scoped change            |
 | `generators`            | `''`                       | Workspace Dagger generators, one per line        |
 | `runs-on`               | `ubuntu-latest`            | Runner label for every job                       |
@@ -56,21 +56,26 @@ without `dagger`. To show the trace link on commits and pull requests, see
 [`actions/posthog-trace-status`](actions/posthog-trace-status/).
 
 Set `dagger-scope: true` with the Dagger beta.28 engine or newer to limit PR
-checks. Install the [scope module] as `scope` in `dagger.toml` and set
-`manifest` to the repository-relative path.
+checks. Install the [scope module] as `scope` in `dagger.toml` and add the rules
+in order. End with a catch-all that selects all checks.
 
 ```toml
 [modules.scope]
 source = "github.com/langri-sha/dagger/scope@<ref>"
 
-[modules.scope.settings]
-manifest = "ci/scope.json"
+[[modules.scope.settings.rules]]
+glob = "**/*.md"
+affects = { apps = [], checks = ["prettier"] }
+
+[[modules.scope.settings.rules]]
+glob = "**"
+affects = { apps = ["*"], checks = ["*"] }
 ```
 
-The workflow reads both `dagger.toml` and the manifest from the tested merge
-commit's first parent. Set `dagger-scope-always: lint` when lint should run for
-every change. Configured Beachball and Changesets checks are included in every
-scope. Pushes, dependency-upgrade PRs, and unresolved scopes run the full suite.
+The workflow reads rules from `dagger.toml` in the tested merge commit's first
+parent. Set `dagger-scope-always: lint` when lint should run for every change.
+Configured Beachball and Changesets checks are included in every scope. Pushes,
+dependency-upgrade PRs, and unresolved scopes run the full suite.
 
 [scope module]: https://github.com/langri-sha/dagger/tree/main/scope
 

@@ -48,9 +48,9 @@ on:
         default: ''
       dagger-scope:
         description: >-
-          Scope Dagger checks on pull requests with the manifest configured in
-          the base commit's dagger.toml. The full suite runs if the scope cannot
-          be resolved.
+          Scope Dagger checks on pull requests with the rules in the base
+          commit's dagger.toml. The full suite runs if the scope cannot be
+          resolved.
         type: boolean
         default: false
       dagger-scope-always:
@@ -627,7 +627,7 @@ jobs:
             always="${always:+$always,}changesets"
           fi
 
-          scope=$(dagger -m github.com/langri-sha/dagger/scope@229fc72a0d59d0c7c0f2d1f191db3229d17a3b24 call resolve-merge \
+          scope=$(dagger -m github.com/langri-sha/dagger/scope@8081971173e70801153750bbdfe9bb660eb3ddce call resolve-merge \
             --merge-sha="$GITHUB_SHA" --head-sha="$HEAD_SHA" --always="$always")
 
           jq -er '.summary' <<<"$scope" >> "$GITHUB_STEP_SUMMARY"
