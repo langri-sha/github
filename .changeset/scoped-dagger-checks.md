@@ -3,4 +3,4 @@
 ---
 
 Let reusable Check workflow callers scope pull request Dagger checks with
-a manifest configured in `dagger.toml`.
+rules in `dagger.toml`.
