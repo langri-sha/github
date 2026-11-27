@@ -530,6 +530,7 @@ jobs:
           pnpm projen
 
           if [[ $(git status --porcelain) ]]; then
+            # shellcheck disable=SC2016 # backticks are literal text in the message
             echo '::error::Some projen changes haven not been appplied. Run `pnpm projen`.'
             git status
             git diff
