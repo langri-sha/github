@@ -1,5 +1,11 @@
 # @langri-sha/github
 
+## 0.38.1
+
+### Patch Changes
+
+- 4d7203a: Lint the reusable workflows clean.
+
 ## 0.38.0
 
 ### Minor Changes
