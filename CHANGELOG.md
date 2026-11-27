@@ -1,5 +1,12 @@
 # @langri-sha/github
 
+## 0.38.0
+
+### Minor Changes
+
+- 8a8581b: Let reusable Check workflow callers scope pull request Dagger checks with
+  rules in `dagger.toml`.
+
 ## 0.37.1
 
 ### Patch Changes
