@@ -13,30 +13,27 @@ Keep each commit to one change a reviewer can accept on its own.
 ## Changelog Policy
 
 Changelogs are maintained by
-[Beachball](https://microsoft.github.io/beachball/).
+[Changesets](https://github.com/changesets/changesets).
 
-1. Every PR that touches a package's files must include a change file, or
-   `beachball check` fails. Files listed in `ignorePatterns` in
-   `beachball.config.cjs`, such as root tooling, are exempt.
+1. Every PR that touches a package's files must include a change file, or the
+   Dagger changesets check fails.
 
    ```sh
-   pnpm beachball change
+   pnpm exec changeset
    ```
 
    Choose the bump type (`patch`, `minor`, `major`) and write a one-line human
-   description. Use `none` for changes that shouldn't cut a release on their
-   own, such as README-only edits. The change file is committed alongside your
-   code.
+   description. Use `pnpm exec changeset --empty` for changes that shouldn't cut
+   a release on their own, such as README-only edits. The change file is
+   committed alongside your code.
 
-   On Renovate and Dependabot PRs, CI writes a `patch` change file itself.
+2. Nothing releases on merge. A maintainer dispatches `workspace-release.yml`
+   from the Actions tab. It calls `packages.yml`, which collects the change
+   files, bumps versions, writes `CHANGELOG.md`, commits to the default branch,
+   tags and creates the GitHub release.
 
-2. Nothing publishes on merge. A maintainer runs the repository's Release
-   workflow (`publish.yml`) from the Actions tab. It calls `packages.yml`, which
-   collects the change files, bumps versions, writes `CHANGELOG.md` and
-   publishes to npm.
-
-3. **Do not hand-edit `CHANGELOG.md` or `package.json` versions.** Let Beachball
-   manage them.
+3. **Do not hand-edit `CHANGELOG.md` or `package.json` versions, and never tag
+   by hand.** Let Changesets manage them.
 
 ## Release Process
 
@@ -44,9 +41,9 @@ Changelogs are maintained by
 | ------------------- | ----------------- | -------------------------------- |
 | Open PR             | Author            | Regular branch → PR              |
 | Pass CI             | CI                | `check.yml` must be green        |
-| Include change file | Author            | `pnpm beachball change`          |
+| Include change file | Author            | `pnpm exec changeset`            |
 | Merge               | Author / reviewer | Rebase merge                     |
-| Publish             | Maintainer        | Run the Release workflow by hand |
+| Release             | Maintainer        | Dispatch `workspace-release.yml` |
 
 ## CI
 
