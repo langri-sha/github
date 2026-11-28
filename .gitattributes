@@ -16,6 +16,7 @@
 /.prettierignore linguist-generated
 /.projen/** linguist-generated
 /CODEOWNERS linguist-generated
+/dagger.toml linguist-generated
 /license linguist-generated
 /lint-staged.config.js linguist-generated
 /package.json linguist-generated

@@ -29,7 +29,12 @@ const project = new Project({
   codeowners: {
     '*': '@langri-sha',
   },
-  dagger: {},
+  dagger: {
+    workspace: {
+      ignore: ['**/.tsbuild'],
+      modules: { actionlint: null },
+    },
+  },
   editorConfig: {},
   githubTemplates: {},
   husky: {
