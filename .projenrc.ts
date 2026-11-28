@@ -32,7 +32,6 @@ const project = new Project({
   dagger: {
     workspace: {
       ignore: ['**/.tsbuild'],
-      modules: { actionlint: null },
     },
   },
   editorConfig: {},
