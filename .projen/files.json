@@ -17,6 +17,7 @@
     ".projen/files.json",
     ".projen/tasks.json",
     "CODEOWNERS",
+    "dagger.toml",
     "license",
     "lint-staged.config.js",
     "pnpm-workspace.yaml",
