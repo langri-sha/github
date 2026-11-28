@@ -154,7 +154,7 @@ jobs:
 
       - name: Setup PNPM
         if: ${{ !inputs.dagger }}
-        uses: langri-sha/github/actions/pnpm@v0.38.0
+        uses: langri-sha/github/actions/pnpm@v0.38.1
 
       - name: Apply ESLint fixes
         if: inputs.eslint && !inputs.dagger
@@ -212,7 +212,7 @@ jobs:
       - name: Resolve Dagger version
         id: dagger-version
         if: inputs.dagger && !inputs.dagger-version
-        uses: langri-sha/github/actions/dagger-version@v0.38.0
+        uses: langri-sha/github/actions/dagger-version@v0.38.1
 
       - name: Set up Dagger
         if: inputs.dagger
@@ -485,7 +485,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.38.0
+        uses: langri-sha/github/actions/pnpm@v0.38.1
 
       - name: ESLint
         if: inputs.eslint
@@ -556,7 +556,7 @@ jobs:
           persist-credentials: false
 
       - name: Setup PNPM
-        uses: langri-sha/github/actions/pnpm@v0.38.0
+        uses: langri-sha/github/actions/pnpm@v0.38.1
 
       - name: Vitest
         run: pnpm vitest --passWithNoTests
@@ -594,12 +594,12 @@ jobs:
 
       - name: Find merge base
         if: inputs.beachball || steps.changesets.outputs.listed == 'true'
-        uses: langri-sha/github/actions/merge-base@v0.38.0
+        uses: langri-sha/github/actions/merge-base@v0.38.1
 
       - name: Resolve Dagger version
         id: dagger-version
         if: ${{ !inputs.dagger-version }}
-        uses: langri-sha/github/actions/dagger-version@v0.38.0
+        uses: langri-sha/github/actions/dagger-version@v0.38.1
 
       - name: Set up Dagger for scoping
         id: scope-dagger
